@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Learning Typescript</title>
+
+		<meta name="description" content="A guided introduction to Typescript">
+		<meta name="author" content="Bryan Rayner">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Learning Typescript</h1>
+					<h3>Or, an appeal to Web Developers to embrace typed languages</h3>
+					<p>
+						<small>Created by <a href="http://bryanerayner.com">Bryan E Rayner</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2 id="why-not-just-javascript">Why not just Javascript?</h2>
+					<p>Javascript, for all it's benefits, provides a considerable challenge for many developers.</p>
+					<p>Especially in team environments, many web developers opt for different solutions to work around the pitfalls.</p>
+				</section>
+				<section>
+					<h2 id="whats-so-bad">What's so bad?</h2>
+					<p>While reasons vary between developers, many leave for common, related reasons:</p>
+					<ul>
+						<li>Limited syntax</li>
+						<li>Foreign concepts (prototypes)</li>
+						<li>Perceived language limitations</li>
+						<li>Lack of IDE support</li>
+						<li>Preference for different syntax (Ruby)</li>
+					</ul>
+				</section>
+				<section>
+					<h2 id="alternatives">Alternatives</h2>
+					<p>There are many options available to web developers looking for Javascript alternatives.</p>
+					<ul>
+						<li>Coffee Script</li>
+						<li>Traceur (ES6 compiler)</li>
+						<li>Clojurescript</li>
+						<li>Dart</li>
+						<li>Typescript</li>
+					</ul>
+					<p>Today, we'll be focusing on Typescript.</p>
+				</section>
+
+				<section>
+					<h2 id="why-typescript">Why Typescript?</h2>
+					<p>Typescript avoids changing the syntax of Javascript as much as possible.</p>
+					<p>All Javascript is Jperfectly valid Typescript. Typescript outputs human-readable Javascript.</p>
+					<p>Typescript adds one feature that is missing from Javascript - Type Definitions.</p>
+				</section>
+				<section>
+					<h2 id="what-is-a-type">What is a type?</h2>
+					<p>Type systems have existed in computing for longer than I've been alive.</p>
+					<p>They are one of the only things keeping your code working.</p>
+					<p>They translate this:
+						var boxCounter = 5;</p>
+					<p>To this value in RAM:
+						00000000 00000000 00000000 00000101</p>
+					</section>
+				<section>
+					<h2 id="strong-weak-types">Strong / Weak types</h2>
+					<p>To demonstrate the differences between strong &amp; weak types in languages, look at this code snippet:</p>
+<pre><code>// Javascript:
+	// This is a variable. It could be anything.
+	var boxCounter;         // Allocate an arbitrary amount of RAM.
+	boxCounter = 5;         // Store a value of 5.
+	boxCounter = 'cinco';   // Store an array of 16-bit Unicode Characters.
+
+	// C++:
+	// This is a 64-bit integer.
+	// It can be anything from –2,147,483,648 to 2,147,483,647
+	long boxCounter;            // Allocate 8 bytes in RAM.
+	boxCounter = 5;             // Set the value to 5.
+	boxCounter = 'no bueno';    // This code won't even work.
+</code></pre>
+					</section>
+				<section>
+					<h2 id="why-do-static-typing">Why do Static Typing?</h2>
+					<p>There are many benefits to statically typed languages:
+						- IDE support for auto-completion / closer teamwork.
+						- Ability to quickly find errors
+						- Faster code execution
+						- Less run-time errors</p>
+					</section>
+				<section>
+					<h2 id="objections-to-static-types">Objections to Static Types:</h2>
+					<p>Programmers who come from a Javascript/Python/Ruby background can have objections to type systems:</p>
+					<ul>
+						<li>Type systems add complicated syntax to my code</li>
+						<li>It takes longer for me to write code in C++, Java, etc...</li>
+						<li>I want to accept multiple types of inputs for my function.</li>
+						<li>I like to quack when I work. 'Duck Typing' please.</li>
+					</ul>
+					</section>
+				<section>
+					<h2 id="best-of-both-worlds">Best of Both Worlds</h2>
+					<p>Typescript provides an answer to the Javascript developer who is looking to have all the benefits
+						of statically typed systems, without the headaches associated with a complicated type syntax.</p>
+					<p>Types are optional - All Javascript is perfectly valid Typescript.</p>
+					</section>
+				<section>
+					<h1 id="types-and-interfaces">Types and Interfaces</h1>
+					<p>We use types all the time - A Javascript developer commonly recognizes five types:</p>
+<pre><code>Number
+	String
+	Boolean
+	Object
+	Function
+</code></pre>
+					</section>
+				<section>
+					<h1 id="default-types-in-typescript">Default types in Typescript</h1>
+					<p>Like Javascript, Typescript supports some basic types:</p>
+<pre><code>number
+	boolean
+	string
+</code></pre>
+					<p>Plus, some new types:
+						void
+						any</p>
+					<p>What happened to Object and Function?</p>
+					</section>
+				<section>
+					<h2 id="compilers">Compilers</h2>
+					<p>In reality, Object and Function are much more complicated than they appear.
+						An object could be anything, and it can change over time.</p>
+<pre><code>// Perfectly valid (and insane) Javascript:
+	var object = {};
+	object.value = 'The fruit bowl has the following: ';
+	object.value = function () { return 'Apple';}
+	object['value'] = object.value() + "'s and oranges.";
+	object.value = (function() {
+	return object.value + ' And banannas.';
+	})();
+</code></pre>
+					<p>How is a compiler to know which is which?</p>
+					<p>How can an IDE provide you with reliable code hinting in this situation?</p>
+					<p>'Duck Typing' works great for developers, but how do you tell a compiler what a duck is?</p>
+					</section>
+					<section>
+					<h2 id="interfaces">Interfaces</h2>
+					<p>Interfaces tell Typescript what to expect when it sees your custom object.</p>
+<pre><code>// Duck interface
+	interface Duck {
+	age: number;
+	name: string;
+	secretIdentity: string;
+
+	walk(distance:number): void;
+	fly(destination:string) : void;
+	quack(volume: number): void;
+	}
+</code></pre>
+						</section>
+				<section>
+					<h2 id="generic-types">Generic Types</h2>
+					<p>For a typical SPA, we might see something like this:</p>
+<pre><code>interface Resource&lt;T&gt; {
+	route: string;
+	get(): T;
+	post(value:T): boolean;
+	put(values: any): boolean;
+	delete(value: T): boolean;
+	}
+</code></pre>
+					<p><T> represents a generic type. It gets defined as you use it.</p>
+					<p>Example:</p>
+<pre><code>interface Chicken{
+	id: number;
+	name: string;
+	breed: string;
+	weight: number;
+	}
+
+	class ChickenResource implements Resource&lt;Chicken&gt;
+	{
+
+	}
+</code></pre>
+					</section>
+				<section>
+					<h1 id="setting-up-typescript">Setting Up Typescript</h1>
+					<p>Setting up Typescript requires a working knowledge of NPM. We'll also be covering Grunt-TS,
+						and how this can be used to compile Typescript files on a project basis.</p>
+					<h2 id="npm-package">NPM Package</h2>
+<pre><code>npm install -g typescript
+</code></pre>
+					<p>This installs the Typescript compiler globally. The latest version is 1.1.0-1, which we'll be using.</p>
+					</section>
+				<section>
+					<h2 id="typescript-compiler">Typescript Compiler</h2>
+<pre><code>tsc [options] [file]
+</code></pre>
+					<p>Unfortunately, this doesn't watch entire folders, like SASS. However, this can be fixed quickly with Grunt-TS.</p>
+				</section>
+
+
+				<section>
+					<h1>THE END</h1>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
