@@ -8,6 +8,11 @@ module.exports = function(grunt) {
                 out: 'src/scripts/graphTraversalDemo/angularDemo/demo.js',
                 watch: 'src/scripts/graphTraversalDemo'
             },
+            concordance:{
+                src: 'src/scripts/graphTraversalDemo/concordance/concordance.ts',
+                out: 'src/scripts/graphTraversalDemo/concordance/concordance.js',
+                watch: 'src/scripts/graphTraversalDemo'
+            },
             graph:{
                 src: 'src/scripts/graphTraversalDemo/Graph.ts',
                 out: 'src/scripts/graphTraversalDemo/Graph.js',
