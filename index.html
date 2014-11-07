@@ -35,7 +35,9 @@
 			{
 				margin-top: 1em !important;
 			}
-
+			ul.spaced-items li{
+				margin-top: .5em !important;
+			}
 			ul.left-align
 			{
 				text-align: left;
@@ -73,10 +75,8 @@
 					<section>
 					<h2>What's so bad?</h2>
 					<p>While reasons vary between developers,<br/> many leave for common, related reasons:</p>
-					</section>
-					<section>
-						<h3>The Bad Parts</h3>
-						<ul>
+						<ul class="padded-top">
+							<li>The bad parts</li>
 							<li>Foreign concepts (prototypes)</li>
 							<li>Perceived language limitations</li>
 							<li>Lack of strong IDE support</li>
@@ -206,12 +206,13 @@ var Snake = (function (_super) {
 				<section>
 					<h2>Objections to Static Types</h2>
 					<p>Web developers often have objections to type systems:</p>
-					<ul class="padded-top">
-						<li>Type systems add complicated syntax to my code</li>
-						<li>It takes longer for me to write code in C++, Java, etc...</li>
-						<li>Compilation is premature optimization, therefore, the root of all evil.</li>
-						<li>I like to quack when I work. 'Duck Typing' please.</li>
+					<ul class="spaced-items" style="list-style: none !important;">
+						<li>"Type systems add complicated syntax to my code"</li>
+						<li>"It takes longer for me to write code in C++, Java, etc..."</li>
+						<li>"Compilation is premature optimization, therefore, the root of all evil."</li>
+						<li>"I like to quack when I work. 'Duck Typing' please."</li>
 					</ul>
+					<p class="padded-top" style="font-size: .8em;">(I'll let you guess which of these were made up - Some weren't!)</p>
 					</section>
 				<section>
 					<h2>Best of Both Worlds</h2>
@@ -222,7 +223,7 @@ var Snake = (function (_super) {
 					</ul>
 				</section>
 				<section>
-					<h1>Types and Interfaces</h1>
+					<h2>Types and Interfaces</h2>
 					<p>We use types all the time - A Javascript developer commonly recognizes five types:</p>
 <pre><code>Number
 	String
@@ -232,7 +233,7 @@ var Snake = (function (_super) {
 </code></pre>
 					</section>
 				<section>
-					<h1>Default types in Typescript</h1>
+					<h2>Default types in Typescript</h2>
 					<p>Like Javascript, Typescript supports some basic types:</p>
 <pre><code>
 	number
@@ -250,19 +251,22 @@ var Snake = (function (_super) {
 					<section>
 					<h2>Compilers</h2>
 					<p>In reality, Object and Function are much more complicated than they appear.</p>
-<pre><code>
+<pre><code class="javascript">
 // Perfectly valid (and insane) Javascript:
 	var object = {};
 	var summary = 'The fruit bowl has ';
-	object.value = function () { return summary + 'apple';}
-	object['value'] = object.value() + "s and oranges.";
-	object.value = (function() {
-	return object.value + ' and bananas.';
-	})();
-	summary = function() {console.log(object.value);}
 
+	object.value = function () { return summary + 'apple';}
+
+	object['value'] = object.value() + "s and oranges.";
+
+	object.value = (function() {
+	      	return object.value + ' And bananas.';
+		})();
+
+	summary = function() {console.log(object.value);}
 	summary();
-// Outputs: 'The fruit bowl has apples and oranges and bananas.
+// Outputs: 'The fruit bowl has apples and oranges. And bananas.
 </code></pre>
 					</section>
 				<section>
@@ -328,7 +332,20 @@ interface Resource&lt;T&gt; {
 				</section>
 
 				<section>
-					<h1>THE END</h1>
+					<section>
+					<h2>Typescript and Teamwork</h2>
+					<p>Typescript adds incredible benefit to team projects:</p>
+					<ul class="padded-top">
+						<li>Standard syntax for common patterns</li>
+						<li>Code hinting provided by IDEs</li>
+						<li>'Jump to definition' support</li>
+						<li>'Contracts' help define API - Built in documentation!</li>
+					</ul>
+					</section>
+					<section>
+						<h2>Let's do some 'work'</h2>
+						<p>For this demonstration, we'll add some functionality to a Graph API.</p>
+					</section>
 				</section>
 
 			</div>
