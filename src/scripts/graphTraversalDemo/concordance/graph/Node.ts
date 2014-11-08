@@ -64,8 +64,16 @@ module concordance.graph
             return this;
         }
 
-        public render(){
+        public renderContent(){
             return this.content;
+        }
+
+        /**
+         *
+         * @returns {string}
+         */
+        public renderReference(){
+            return this.reference;
         }
 
         public equals(other:Node) {

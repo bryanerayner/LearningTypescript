@@ -20,6 +20,10 @@ module graphs
     // An interface for a graph
     export interface IGraph<T>
     {
+        /**
+         * The Unique Identifier for the graph.
+         */
+        _uid:string;
         addNode(newNode:INode<T>, biDirectionalEdges?:number[]): void;
         addNode(newNode:INode<T>, biDirectionalEdges?:string[]): void;
         addNode(newNode:INode<T>): void;
@@ -36,12 +40,12 @@ module graphs
 
     export class Graph<T> implements IGraph<T>
     {
-
-
+        public _uid:string;
         private nodes: {[key:string]:INode<T>} = {};
         private connections: {[key:string]:string[]} = {};
 
         constructor (nodes?:INode<T>[], connections?:INodeConnection[]) {
+            this._uid = _.uniqueId('graph');
             if (!connections) {
                 connections = [];
             }

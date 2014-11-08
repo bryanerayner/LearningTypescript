@@ -3,3 +3,5 @@
  */
 ///<reference  path="node.ts"/>
 ///<reference  path="scriptureGraph.ts"/>
+///<reference  path="wordNode.ts"/>
+///<reference  path="graphBuilder.ts"/>
