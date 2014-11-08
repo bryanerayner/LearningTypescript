@@ -3,7 +3,6 @@
  */
 ///<reference path="../../Graph.ts"/>
 ///<reference path="node.ts"/>
-///<reference path="NodeDefinitions.ts"/>
 
 module concordance.graph {
 
@@ -34,7 +33,22 @@ module concordance.graph {
          */
         public addNodes(passage:string)
         {
+            var wordNodes = this.getNodes(passage);
+            _.each(wordNodes, (wordNode)=>{
+                this.graph.addNode(wordNode);
+            });
+        }
 
+        /**
+         * Get the word nodes from a sentence
+         * @param subPassage
+         */
+        public getNodes(subPassage:string)
+        {
+            var words = subPassage.split(/[\s\d\.\'\"']*/i);
+            return _.map(words, (word)=>{
+                return new WordNode(word);
+            });
         }
 
     }

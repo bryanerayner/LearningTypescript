@@ -4,4 +4,5 @@
 ///<reference  path="node.ts"/>
 ///<reference  path="scriptureGraph.ts"/>
 ///<reference  path="wordNode.ts"/>
+///<reference  path="verseNode.ts"/>
 ///<reference  path="graphBuilder.ts"/>

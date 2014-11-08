@@ -3,13 +3,18 @@
  */
 ///<reference path="../../Graph.ts"/>
 ///<reference path="node.ts"/>
-///<reference path="NodeDefinitions.ts"/>
 ///<reference path="graphBuilder.ts"/>
 ///<reference path="ephesians.ts"/>
 
 module concordance.graph
 {
 
+    export interface ScriptureReference
+    {
+        book:string;
+        chapter:number;
+        verse:number;
+    }
 
     export class ScriptureGraph extends graphs.Graph<Node>
     {

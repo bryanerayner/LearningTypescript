@@ -3,7 +3,6 @@
  */
 ///<reference path="../../Graph.ts"/>
 ///<reference path="node.ts"/>
-///<reference path="NodeDefinitions.ts"/>
 
 module concordance.graph {
 
@@ -17,7 +16,7 @@ module concordance.graph {
          * A list of builder names which are required by this builder.
          */
         public requiredBuilders:string[];
-        private graph:graphs.IGraph<Node>;
+        public graph:graphs.IGraph<Node>;
         private canChangeGraph:boolean = false;
 
         constructor(graph?:graphs.IGraph<Node>)
@@ -76,6 +75,10 @@ module concordance.graph {
             return [];
         }
 
+        public getSharedBuilder(builderName:string):GraphBuilder{
+            return GraphBuilder.getPendingBuilder(this.graph._uid, builderName);
+        }
+
         /**
          * Whether or not all the required builders have run on this graph.
          * @returns {boolean}
@@ -106,7 +109,12 @@ module concordance.graph {
         private static getPendingBuilder(graphUid:string, builderName:string):GraphBuilder
         {
             if (GraphBuilder.pendingBuilders[graphUid]){
-                return _.find(GraphBuilder.pendingBuilders[graphUid], {builderName:builderName});
+                var firstBuilder = _.find(GraphBuilder.pendingBuilders[graphUid],(pendingBuilder)=>{
+                    return pendingBuilder.builderName === builderName;
+                });
+                if (firstBuilder){
+                    return firstBuilder.builder;
+                }
             }
             return null;
         }
