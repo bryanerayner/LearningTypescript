@@ -20,7 +20,9 @@ module concordance.graph {
         }
 
         public computeReference(originalContent:string) {
-            return 'verse:'+this.scriptureRef.book+this.scriptureRef.chapter+this.scriptureRef.verse;
+            return 'verse:'+
+                    this.scriptureRef.book+
+                    this.scriptureRef.chapter+':'+this.scriptureRef.verse;
         }
 
         public setType(){
@@ -64,7 +66,7 @@ module concordance.graph {
             }
         }
 
-        private static verseRegex:RegExp = /([\d]\:[\d]{1,3})([A-Za-z\s\,\.\"\'\;\:\’\“\”]*)/g;
+        private static verseRegex:RegExp = /([\d]\:[\d]{1,3})([A-Za-z\s\,\.\-\"\'\*\;\:\’\“\”]*)/g;
 
         /**
          * Get the word nodes from a sentence
@@ -72,13 +74,17 @@ module concordance.graph {
          */
         public getNodes(subPassage:string)
         {
-            var verses = VerseNodeGraphBuilder.verseRegex.exec(subPassage);
+            var verses:RegExpExecArray[] = [];
+            var verse:RegExpExecArray;
+            while ((verse = VerseNodeGraphBuilder.verseRegex.exec(subPassage)) !== null){
+                verses.push(verse);
+            }
             return _.map(verses, (verse)=>{
-                var chapterAndVerse = verse[0].split(':');
-                return new VerseNode(verse[1], {
+                var chapterAndVerse = verse[1].split(':');
+                return new VerseNode(verse[2], {
                     book:'',
                     chapter:parseInt(chapterAndVerse[0], 10),
-                    verse:parseInt(chapterAndVerse[0], 10)
+                    verse:parseInt(chapterAndVerse[1], 10)
                 });
             });
         }

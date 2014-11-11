@@ -43,4 +43,32 @@ module demo.ts
         }
     }
     ngModule.factory('BreadthFirstSearch', BreadthFirstSearchFactory);
+
+
+
+
+
+    _.each([
+        'GraphBuilder',
+        'Node',
+        'ScriptureGraph',
+        'VerseNode',
+        'VerseNodeGraphBuilder',
+        'WordNode',
+        'WordNodeGraphBuilder'
+    ], (className)=>{
+
+        ngModule.factory(className, [function(){
+            return concordance.graph[className];
+        }]);
+
+    });
+
+    ngModule.value('bibleText', {
+        ephesians: concordance.graphData.ephesians
+    });
+
+
+
+
 }

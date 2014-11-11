@@ -20,10 +20,13 @@ module concordance.graph
     {
         constructor(passage:string, graphBuilders:GraphBuilder[]){
             super();
-            _.each(graphBuilders, (graphBuilder:GraphBuilder)=>{
-                graphBuilder.setGraph(this);
-                graphBuilder.addNodes(passage);
-            });
+            _(graphBuilders).each(
+                (graphBuilder:GraphBuilder)=>{
+                    graphBuilder.setGraph(this);
+                }).each(
+                (graphBuilder:GraphBuilder)=> {
+                    graphBuilder.buildGraph(passage);
+                });
         }
 
 

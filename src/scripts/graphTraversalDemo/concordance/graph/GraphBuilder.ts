@@ -11,13 +11,13 @@ module concordance.graph {
         /**
          * The name of the builder. Should be defined by each sub-class
          */
-        public builderName:string;
+        public builderName:string = 'base';
         /**
          * A list of builder names which are required by this builder.
          */
-        public requiredBuilders:string[];
-        public graph:graphs.IGraph<Node>;
-        private canChangeGraph:boolean = false;
+        public requiredBuilders:string[] = [];
+        public graph:graphs.IGraph<Node> = null;
+        private canChangeGraph:boolean = true;
 
         constructor(graph?:graphs.IGraph<Node>)
         {
@@ -38,7 +38,7 @@ module concordance.graph {
          * Add to a graph.
          * @param passage
          */
-        public addToGraph(passage:string)
+        public buildGraph(passage:string)
         {
             this.canChangeGraph = false;
             GraphBuilder.beginProcessingGraph(this.graph._uid, this);
@@ -51,7 +51,7 @@ module concordance.graph {
             else
             {
                 _.defer(()=>{
-                    this.addToGraph(passage);
+                    this.buildGraph(passage);
                 });
             }
         }

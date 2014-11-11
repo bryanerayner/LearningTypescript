@@ -39,13 +39,14 @@ module concordance.graph {
             });
         }
 
+        private static wordSpaceRegex:RegExp = /[\s\“\”\d\:\/\,\(\)]/g;
         /**
          * Get the word nodes from a sentence
          * @param subPassage
          */
         public getNodes(subPassage:string)
         {
-            var words = subPassage.split(/[\s\d\.\'\"']*/i);
+            var words = subPassage.split(WordNodeGraphBuilder.wordSpaceRegex);
             return _.map(words, (word)=>{
                 return new WordNode(word);
             });

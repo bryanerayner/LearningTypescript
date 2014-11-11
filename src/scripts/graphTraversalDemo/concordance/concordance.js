@@ -11,6 +11,7 @@ var graphs;
     var Graph = (function () {
         function Graph(nodes, connections) {
             var _this = this;
+            this.nodesCount = 0;
             this.nodes = {};
             this.connections = {};
             this._uid = _.uniqueId('graph');
@@ -19,18 +20,13 @@ var graphs;
             }
             if (nodes) {
                 _.each(nodes, function (node) {
-                    var uId = node._getUId();
-
-                    _this.nodes[uId] = node;
+                    _this.addNode(node);
                 });
             }
 
             if (connections) {
                 _.each(connections, function (connection) {
-                    var firstId = connection.firstId;
-                    var secondId = connection.secondId;
-                    _this.connections[firstId] = (_this.connections[firstId] || []).concat(secondId);
-                    _this.connections[secondId] = (_this.connections[secondId] || []).concat(firstId);
+                    _this.addEdge(connection.firstId, connection.secondId);
                 });
             }
         }
@@ -52,7 +48,11 @@ var graphs;
         Graph.prototype.addNode = function (newNode, biDirectionalEdges) {
             var _this = this;
             if (typeof biDirectionalEdges === "undefined") { biDirectionalEdges = []; }
-            this.nodes[newNode._getUId()] = newNode;
+            var uid = newNode._getUId();
+            if (!this.nodes[uid]) {
+                this.nodesCount++;
+            }
+            this.nodes[uid] = newNode;
             _.each(biDirectionalEdges, function (edge) {
                 _this.addEdge(newNode, _this.getNode(edge.toString()));
             });
@@ -62,8 +62,16 @@ var graphs;
             if (!v || !w) {
                 return;
             }
-            var firstId = v._getUId();
-            var secondId = w._getUId();
+            var firstId;
+            var secondId;
+            if (_.isString(v) && _.isString(w)) {
+                firstId = v;
+                secondId = w;
+            } else {
+                firstId = v._getUId();
+                secondId = w._getUId();
+            }
+
             if (!this.connections[firstId]) {
                 this.connections[firstId] = [];
             }
@@ -369,7 +377,10 @@ var concordance;
     (function (_graph) {
         var GraphBuilder = (function () {
             function GraphBuilder(graph) {
-                this.canChangeGraph = false;
+                this.builderName = 'base';
+                this.requiredBuilders = [];
+                this.graph = null;
+                this.canChangeGraph = true;
                 if (graph) {
                     this.setGraph(graph);
                 }
@@ -380,7 +391,7 @@ var concordance;
                 }
             };
 
-            GraphBuilder.prototype.addToGraph = function (passage) {
+            GraphBuilder.prototype.buildGraph = function (passage) {
                 var _this = this;
                 this.canChangeGraph = false;
                 GraphBuilder.beginProcessingGraph(this.graph._uid, this);
@@ -390,7 +401,7 @@ var concordance;
                     this.canChangeGraph = true;
                 } else {
                     _.defer(function () {
-                        _this.addToGraph(passage);
+                        _this.buildGraph(passage);
                     });
                 }
             };
@@ -471,9 +482,10 @@ var concordance;
             function ScriptureGraph(passage, graphBuilders) {
                 var _this = this;
                 _super.call(this);
-                _.each(graphBuilders, function (graphBuilder) {
+                _(graphBuilders).each(function (graphBuilder) {
                     graphBuilder.setGraph(_this);
-                    graphBuilder.addNodes(passage);
+                }).each(function (graphBuilder) {
+                    graphBuilder.buildGraph(passage);
                 });
             }
             return ScriptureGraph;
@@ -516,11 +528,12 @@ var concordance;
             };
 
             WordNodeGraphBuilder.prototype.getNodes = function (subPassage) {
-                var words = subPassage.split(/[\s\d\.\'\"']*/i);
+                var words = subPassage.split(WordNodeGraphBuilder.wordSpaceRegex);
                 return _.map(words, function (word) {
                     return new WordNode(word);
                 });
             };
+            WordNodeGraphBuilder.wordSpaceRegex = /[\s\“\”\d\:\/\,\(\)]/g;
             return WordNodeGraphBuilder;
         })(graph.GraphBuilder);
         graph.WordNodeGraphBuilder = WordNodeGraphBuilder;
@@ -537,7 +550,7 @@ var concordance;
                 _super.call(this, originalContent);
             }
             VerseNode.prototype.computeReference = function (originalContent) {
-                return 'verse:' + this.scriptureRef.book + this.scriptureRef.chapter + this.scriptureRef.verse;
+                return 'verse:' + this.scriptureRef.book + this.scriptureRef.chapter + ':' + this.scriptureRef.verse;
             };
 
             VerseNode.prototype.setType = function () {
@@ -573,17 +586,21 @@ var concordance;
             };
 
             VerseNodeGraphBuilder.prototype.getNodes = function (subPassage) {
-                var verses = VerseNodeGraphBuilder.verseRegex.exec(subPassage);
+                var verses = [];
+                var verse;
+                while ((verse = VerseNodeGraphBuilder.verseRegex.exec(subPassage)) !== null) {
+                    verses.push(verse);
+                }
                 return _.map(verses, function (verse) {
-                    var chapterAndVerse = verse[0].split(':');
-                    return new VerseNode(verse[1], {
+                    var chapterAndVerse = verse[1].split(':');
+                    return new VerseNode(verse[2], {
                         book: '',
                         chapter: parseInt(chapterAndVerse[0], 10),
-                        verse: parseInt(chapterAndVerse[0], 10)
+                        verse: parseInt(chapterAndVerse[1], 10)
                     });
                 });
             };
-            VerseNodeGraphBuilder.verseRegex = /([\d]\:[\d]{1,3})([A-Za-z\s\,\.\"\'\;\:\’\“\”]*)/g;
+            VerseNodeGraphBuilder.verseRegex = /([\d]\:[\d]{1,3})([A-Za-z\s\,\.\-\"\'\*\;\:\’\“\”]*)/g;
             return VerseNodeGraphBuilder;
         })(graph.GraphBuilder);
         graph.VerseNodeGraphBuilder = VerseNodeGraphBuilder;

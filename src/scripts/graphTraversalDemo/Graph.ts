@@ -24,6 +24,7 @@ module graphs
          * The Unique Identifier for the graph.
          */
         _uid:string;
+        nodesCount:number;
         addNode(newNode:INode<T>, biDirectionalEdges?:number[]): void;
         addNode(newNode:INode<T>, biDirectionalEdges?:string[]): void;
         addNode(newNode:INode<T>): void;
@@ -40,6 +41,7 @@ module graphs
 
     export class Graph<T> implements IGraph<T>
     {
+        public nodesCount:number = 0;
         public _uid:string;
         private nodes: {[key:string]:INode<T>} = {};
         private connections: {[key:string]:string[]} = {};
@@ -51,21 +53,14 @@ module graphs
             }
             if (nodes) {
                 _.each(nodes,(node)=> {
-                    var uId = node._getUId();
-
-                    this.nodes[uId] = node;
+                    this.addNode(node);
                 });
             }
 
             if (connections) {
                 // Build a doubly connected graph for this.
                 _.each(connections, (connection)=> {
-                    var firstId = connection.firstId;
-                    var secondId = connection.secondId;
-                    this.connections[firstId] =
-                        (this.connections[firstId] || []).concat(secondId);
-                    this.connections[secondId] =
-                        (this.connections[secondId] || []).concat(firstId);
+                    this.addEdge(connection.firstId, connection.secondId);
                 });
             }
         }
@@ -86,18 +81,32 @@ module graphs
         addNode(newNode:graphs.INode<T>, biDirectionalEdges?:number[]):void;
         addNode(newNode:graphs.INode<T>, biDirectionalEdges?:string[]):void;
         addNode(newNode:graphs.INode<T>, biDirectionalEdges:any[]=[]):void {
-            this.nodes[newNode._getUId()] = newNode;
+            var uid = newNode._getUId();
+            if (!this.nodes[uid]){
+                this.nodesCount++;
+            }
+            this.nodes[uid] = newNode;
             _.each(biDirectionalEdges, (edge)=>{
                this.addEdge(newNode, this.getNode(edge.toString()));
             });
         }
 
-        addEdge(v:INode<T>, w:INode<T>):void {
+        addEdge(v:INode<T>, w:INode<T>);
+        addEdge(v:string, w:string);
+        addEdge(v:any, w:any):void {
             if (!v || !w){
                 return;
             }
-            var firstId = v._getUId();
-            var secondId = w._getUId();
+            var firstId :string;
+            var secondId :string;
+            if (_.isString(v) && _.isString(w)){
+                firstId = v;
+                secondId = w;
+            }else{
+                firstId = v._getUId();
+                secondId = w._getUId();
+            }
+
             if (!this.connections[firstId]){
                 this.connections[firstId] = [];
             }

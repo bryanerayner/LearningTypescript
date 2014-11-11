@@ -6,3 +6,4 @@
 ///<reference  path="wordNode.ts"/>
 ///<reference  path="verseNode.ts"/>
 ///<reference  path="graphBuilder.ts"/>
+///<reference  path="ephesians.ts"/>
