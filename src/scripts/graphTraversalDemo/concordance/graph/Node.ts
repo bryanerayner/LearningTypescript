@@ -9,6 +9,7 @@ module concordance.graph
     {
         Word,
         Verse,
+        Sentence,
         BaseType
     }
 
@@ -69,11 +70,26 @@ module concordance.graph
         }
 
         /**
+         * Make an anchor tag with the specified content, referencing to this node
+         * @param content The contents of the anchor tag
+         */
+        public makeAnchor(content:string):string
+        {
+            return '<a href="#concordance/node/' +
+                        this._getUId() +
+                    '">'+ content + '</a>';
+        }
+
+        /**
          *
          * @returns {string}
          */
         public renderReference(){
             return this.reference;
+        }
+
+        public renderName(){
+            return '';
         }
 
         public equals(other:Node) {

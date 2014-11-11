@@ -4,114 +4,98 @@
     <meta charset="UTF-8">
     <title>Typescript / Angular Graphs Demo</title>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"/>
+    <style>
+        a{
+            text-decoration: none;
+            text-underline: none;
+            color: #121212;
+        }
+    </style>
+
 </head>
-<body ng-controller="DemoCtrl as demoCtrl">
+<body>
 
+<div ui-view class="container">
 
-<!--<div class="container-fixed">-->
-
-    <!--<div class="row">-->
-        <!--<div class="col-xs-12">-->
-            <!--<table class="table">-->
-                <!--<thead>-->
-                <!--<th>id</th>-->
-                <!--<th>Name</th>-->
-                <!--<th>Age</th>-->
-                <!--<th>Immediate Friends</th>-->
-                <!--<th>Friend Group Id</th>-->
-                <!--</thead>-->
-                <!--<tbody>-->
-                <!--<tr ng-repeat="friendData in demoCtrl.friendsData">-->
-                    <!--<td>{{friendData.person.id}}</td>-->
-                    <!--<td>{{friendData.person.name}}</td>-->
-                    <!--<td>{{friendData.person.age}}</td>-->
-                    <!--<td>-->
-            <!--<span ng-repeat="friendId in friendData.person.friends">-->
-                <!--{{friendId}},-->
-            <!--</span>-->
-                    <!--</td>-->
-                    <!--<td>{{friendData.friendGroupId}}</td>-->
-                <!--</tr>-->
-                <!--</tbody>-->
-            <!--</table>-->
-        <!--</div>-->
-    <!--</div>-->
-
-    <!--<div class="row">-->
-        <!--<div class="col-xs-3">-->
-            <!--<label for="friendName">New Person's Name</label>-->
-            <!--<input id ="friendName" class="form-control" type="text" ng-model="name"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3">-->
-            <!--<label for="friendAge">New Person's Age</label>-->
-            <!--<input id ="friendAge" class="form-control" class="input" type="text" ng-model="age"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3">-->
-            <!--<label for="friendsNames">New Person's Friends</label>-->
-            <!--<input id ="friendsNames" class="form-control" type="text" ng-model="friendsNames"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-3">-->
-            <!--<button class="btn btn-primary"-->
-                    <!--ng-click="demoCtrl.addPerson(name, age, friendsNames)">-->
-                <!--Add Person-->
-            <!--</button>-->
-        <!--</div>-->
-    <!--</div>-->
-
-    <!--<div class="row">-->
-        <!--<div class="col-xs-1">-->
-            <!--Is-->
-        <!--</div>-->
-        <!--<div class="col-xs-4">-->
-            <!--<input type="text" ng-model="demoCtrl.name1"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-1">-->
-            <!--connected to-->
-        <!--</div>-->
-        <!--<div class="col-xs-4">-->
-            <!--<input type="text" ng-model="demoCtrl.name2"/>-->
-        <!--</div>-->
-        <!--<div class="col-xs-2">-->
-            <!--?-->
-        <!--</div>-->
-    <!--</div>-->
-
-    <!--<div class="row" ng-if="demoCtrl.friendsAreConnected(demoCtrl.name1, demoCtrl.name2)">-->
-        <!--<div class="col-xs-6">-->
-            <!--Yes, they are!-->
-        <!--</div>-->
-        <!--<div class="col-xs-6">-->
-            <!--<p>Through:</p>-->
-            <!--<p ng-repeat="name in demoCtrl.friendsConnectedThrough">-->
-                <!--{{name}} --->
-            <!--</p>-->
-        <!--</div>-->
-    <!--</div>-->
-    <!--<div class="row" ng-if="!demoCtrl.friendsAreConnected(demoCtrl.name1, demoCtrl.name2)">-->
-        <!--<div class="col-xs-12">-->
-            <!--No, they're not!-->
-        <!--</div>-->
-    <!--</div>-->
-
-<!--</div>-->
-
-
-<div class="row">
-    <div class="col-xs-6">
-        <h1>All nodes</h1>
-        <ul ng-repeat="node in demoCtrl.nodes">
-            <li>{{::node | json}}</li>
-        </ul>
-    </div>
-    <div class="col-xs-6">
-
-    </div>
 </div>
 
 
+<script type="text/ng-template" id="demoTpl.html">
+    <div class="row" >
+
+    <div class="col-xs-6">
+        <h1>Ephesians</h1>
+        <div ng-bind-html="demoCtrl.bookContent"></div>
+    </div>
+    <div class="col-xs-6">
+        <div ui-view></div>
+    </div>
+    </div>
+</script>
+
+
+<script type="text/ng-template" id="nodeTpl.html">
+    <div class="row" >
+        <h2>{{nodeCtrl.nodeName}}</h2>
+    </div>
+    <div class="row" style="margin-bottom: 3em;">
+        <div class="col-xs-4">
+            <div ng-bind-html="nodeCtrl.nodeReference"></div>
+        </div>
+        <div class="col-xs-8">
+            <div ng-bind-html="nodeCtrl.nodeContent"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+        <h3>Related:</h3>
+        </div>
+        <div class="col-xs-3">
+            <h4>Depth: {{nodeCtrl.nodeDepth}}</h4>
+        </div>
+        <div class="col-xs-5">
+            <button type="button"
+                    class="pull-left btn btn-default"
+                    ng-click = "nodeCtrl.nodeDepth = nodeCtrl.nodeDepth - 1">
+                Decrease
+            </button>
+            <button type="button"
+                    class="pull-right btn btn-primary"
+                    ng-click = "nodeCtrl.nodeDepth = nodeCtrl.nodeDepth + 1">
+                Increase
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <accordion close-others ="false">
+            <accordion-group
+                    ng-repeat="aGroup in nodeCtrl.accordionGroups"
+                    heading="{{aGroup.heading}}"
+                    is-open="aGroup.isOpen">
+                <table class="table">
+                    <thead>
+                        <th>Reference</th>
+                        <th>Content</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="node in aGroup.adjacentNodes track by $index">
+                            <td ng-bind-html="::node.renderReference()">
+                            </td>
+                            <td ng-bind-html="::node.getContent()">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </accordion-group>
+        </accordion>
+    </div>
+</script>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+<script src="lib/angularjs/angular.js"></script>
+<script src="lib/angularjs/angular-sanitize.js"></script>
+<script src="lib/angular-ui-router.min.js"></script>
+<script src="lib/ui-bootstrap-tpls-0.11.2.min.js"></script>
 <script src="scripts/graphTraversalDemo/angularDemo/demo.js"></script>
 </body>
 

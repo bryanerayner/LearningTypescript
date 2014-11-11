@@ -3,6 +3,7 @@
  */
 ///<reference path="../../Graph.ts"/>
 ///<reference path="node.ts"/>
+///<reference path="wordNode.ts"/>
 ///<reference path="scriptureGraph.ts"/>
 
 module concordance.graph {
@@ -24,6 +25,29 @@ module concordance.graph {
                     this.scriptureRef.book+
                     this.scriptureRef.chapter+':'+this.scriptureRef.verse;
         }
+
+        public renderContent(){
+            var content = this.content + '';
+            var output = content.replace(VerseNode.wordMatchRegex, (match)=>{
+                var wn = new WordNode(match);
+                return wn.renderContent();
+            });
+            return this.renderReference() + output;
+        }
+
+        public renderReference(){
+            return this.makeAnchor(
+                this.scriptureRef.chapter + ':' + this.scriptureRef.verse
+            );
+        }
+
+        public renderName(){
+            return 'Ephesians ' +
+                    this.scriptureRef.chapter +
+                    ' Verse ' + this.scriptureRef.verse;
+        }
+
+        private static wordMatchRegex:RegExp = /([a-zA-Z\’]+)/ig;
 
         public setType(){
             this.type = NodeContentType.Verse;
@@ -82,7 +106,7 @@ module concordance.graph {
             return _.map(verses, (verse)=>{
                 var chapterAndVerse = verse[1].split(':');
                 return new VerseNode(verse[2], {
-                    book:'',
+                    book:'ephesians', // For now, hard code ephesians
                     chapter:parseInt(chapterAndVerse[0], 10),
                     verse:parseInt(chapterAndVerse[1], 10)
                 });

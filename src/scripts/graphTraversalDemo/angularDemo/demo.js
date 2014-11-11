@@ -312,91 +312,124 @@ var graphs;
 var demo;
 (function (demo) {
     (function (ts) {
-        var ngModule = angular.module('demo.ts', ['demo.ts.factories']);
+        var ngModule = angular.module('demo.ts', [
+            'demo.ts.factories',
+            'ui.router',
+            'ui.bootstrap',
+            'ngSanitize'
+        ]);
 
-        ngModule.value('demoDataSeed', {
-            people: [
-                {
-                    id: 1,
-                    name: 'Tommy',
-                    age: 23,
-                    friends: [3]
-                }, {
-                    id: 2,
-                    name: 'Betty',
-                    age: 54,
-                    friends: [5, 6]
-                }, {
-                    id: 3,
-                    name: 'Frank',
-                    age: 15,
-                    friends: [1, 4]
-                }, {
-                    id: 4,
-                    name: 'Jennifer',
-                    age: 12,
-                    friends: [1, 3]
-                }, {
-                    id: 5,
-                    name: 'Lafawnduh',
-                    age: 32,
-                    friends: [6]
-                }, {
-                    id: 6,
-                    name: 'Kip',
-                    age: 34,
-                    friends: [5, 7, 8]
-                }, {
-                    id: 7,
-                    name: 'Napoleon',
-                    age: 18,
-                    friends: [6, 8]
-                }, {
-                    id: 8,
-                    name: 'Uncle Rico',
-                    age: 42,
-                    friends: [7, 6]
-                }, {
-                    id: 9,
-                    name: 'Starla',
-                    age: 18,
-                    friends: [7]
-                }, {
-                    id: 10,
-                    name: 'Tina',
-                    age: 6,
-                    friends: [7]
-                }
-            ]
-        });
-
-        ngModule.controller('DemoCtrl', [
-            '$scope',
-            'bibleText',
-            'ScriptureGraph',
-            'VerseNodeGraphBuilder',
-            'WordNodeGraphBuilder',
-            function ($scope, bibleText, ScriptureGraph, VerseNodeGraphBuilder, WordNodeGraphBuilder) {
-                var _this = this;
-                var graphBuilders;
-
-                graphBuilders = [
-                    new VerseNodeGraphBuilder(),
-                    new WordNodeGraphBuilder()
-                ];
-
-                this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
-                this.nodes = [];
-
-                $scope.$watch(function () {
-                    return _this.graph.nodesCount;
-                }, function () {
-                    _this.nodes = _this.graph.getAllNodes();
+        ngModule.config([
+            '$stateProvider', function ($stateProvider) {
+                $stateProvider.state({
+                    name: 'concordance',
+                    url: '/concordance',
+                    controller: 'DemoCtrl as demoCtrl',
+                    templateUrl: 'demoTpl.html'
                 });
 
-                setInterval(function () {
+                $stateProvider.state({
+                    name: 'concordance.inspectNode',
+                    url: '/node/{nodeRef}',
+                    controller: 'NodeCtrl as nodeCtrl',
+                    templateUrl: 'nodeTpl.html',
+                    resolve: {
+                        node: [
+                            'GraphSrv', '$stateParams',
+                            function (GraphSrv, $stateParams) {
+                                return GraphSrv.graph.getNode($stateParams.nodeRef);
+                            }]
+                    }
+                });
+            }]);
+
+        ngModule.run([
+            '$state', function ($state) {
+                $state.go('concordance');
+            }]);
+
+        ngModule.controller('DemoCtrl', [
+            '$scope', 'GraphSrv', '$sce', function ($scope, GraphSrv, $sce) {
+                var _this = this;
+                this.bookContent = '';
+                this.nodes = GraphSrv.graph.getAllNodes();
+
+                $scope.$watch(function () {
+                    return GraphSrv.graph.nodesCount;
+                }, function () {
+                    _this.nodes = GraphSrv.graph.getAllNodes();
+                    _this.bookContent = $sce.trustAsHtml(GraphSrv.graph.renderBook());
+                });
+
+                _.defer(function () {
                     $scope.$digest();
-                }, 100);
+                }, 10);
+            }]);
+
+        ngModule.controller('NodeCtrl', [
+            '$scope', 'node', 'GraphSrv',
+            function ($scope, node, GraphSrv) {
+                var _this = this;
+                this.nodeName = node.renderName();
+                this.nodeReference = node.renderReference();
+                this.nodeContent = node.renderContent();
+
+                var getNodes = function (depth) {
+                    depth--;
+
+                    _this.adjacentNodes = GraphSrv.graph.getAdjacentNodes(node);
+
+                    for (var i = 0; i < depth; i++) {
+                        var newAdjacentNodes = _(_this.adjacentNodes).chain().map(function (node) {
+                            return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
+                        }).flatten().valueOf();
+                        _this.adjacentNodes = newAdjacentNodes;
+                    }
+                    _this.adjacentNodes = _.uniq(_this.adjacentNodes, function (node) {
+                        return node._getUId();
+                    });
+
+                    _this.adjacentWords = _.filter(_this.adjacentNodes, function (node) {
+                        return node.type === 0 /* Word */;
+                    });
+                    _this.adjacentVerses = _.filter(_this.adjacentNodes, function (node) {
+                        return node.type === 1 /* Verse */;
+                    });
+                    _this.adjacentSentences = _.filter(_this.adjacentNodes, function (node) {
+                        return node.type === 2 /* Sentence */;
+                    });
+
+                    _this.accordionGroups = [
+                        {
+                            heading: 'Adjacent Words',
+                            adjacentNodes: _this.adjacentWords,
+                            isOpen: !!_this.adjacentWords.length
+                        }, {
+                            heading: 'Adjacent Verses',
+                            adjacentNodes: _this.adjacentVerses,
+                            isOpen: !!_this.adjacentVerses.length
+                        }, {
+                            heading: 'Adjacent Sentences',
+                            adjacentNodes: _this.adjacentSentences,
+                            isOpen: !!_this.adjacentSentences.length
+                        }, {
+                            heading: 'All Nodes',
+                            adjacentNodes: _this.adjacentNodes,
+                            isOpen: !!_this.adjacentNodes.length
+                        }];
+
+                    _this.accordionGroups = _.filter(_this.accordionGroups, function (aGroup) {
+                        return aGroup.isOpen;
+                    });
+                };
+
+                this.nodeDepth = 1;
+
+                $scope.$watch(function () {
+                    return _this.nodeDepth;
+                }, function (nodeDepth) {
+                    getNodes(nodeDepth);
+                });
             }]);
     })(demo.ts || (demo.ts = {}));
     var ts = demo.ts;
@@ -407,7 +440,8 @@ var concordance;
         (function (NodeContentType) {
             NodeContentType[NodeContentType["Word"] = 0] = "Word";
             NodeContentType[NodeContentType["Verse"] = 1] = "Verse";
-            NodeContentType[NodeContentType["BaseType"] = 2] = "BaseType";
+            NodeContentType[NodeContentType["Sentence"] = 2] = "Sentence";
+            NodeContentType[NodeContentType["BaseType"] = 3] = "BaseType";
         })(graph.NodeContentType || (graph.NodeContentType = {}));
         var NodeContentType = graph.NodeContentType;
 
@@ -418,7 +452,7 @@ var concordance;
                 this.setType();
             }
             Node.prototype.setType = function () {
-                this.type = 2 /* BaseType */;
+                this.type = 3 /* BaseType */;
             };
 
             Node.prototype.setReference = function (originalContent) {
@@ -451,8 +485,16 @@ var concordance;
                 return this.content;
             };
 
+            Node.prototype.makeAnchor = function (content) {
+                return '<a href="#concordance/node/' + this._getUId() + '">' + content + '</a>';
+            };
+
             Node.prototype.renderReference = function () {
                 return this.reference;
+            };
+
+            Node.prototype.renderName = function () {
+                return '';
             };
 
             Node.prototype.equals = function (other) {
@@ -569,6 +611,21 @@ var concordance;
 var concordance;
 (function (concordance) {
     (function (graph) {
+        var ScriptureReference = (function () {
+            function ScriptureReference() {
+            }
+            ScriptureReference.compare = function (refA, refB) {
+                var chapterComparison = refA.chapter - refB.chapter;
+                if (chapterComparison === 0) {
+                    return refA.verse - refB.verse;
+                } else {
+                    return chapterComparison;
+                }
+            };
+            return ScriptureReference;
+        })();
+        graph.ScriptureReference = ScriptureReference;
+
         var ScriptureGraph = (function (_super) {
             __extends(ScriptureGraph, _super);
             function ScriptureGraph(passage, graphBuilders) {
@@ -580,6 +637,21 @@ var concordance;
                     graphBuilder.buildGraph(passage);
                 });
             }
+            ScriptureGraph.prototype.getBook = function (bookName) {
+                if (typeof bookName === "undefined") { bookName = 'ephesians'; }
+                return (this.where(function (node) {
+                    return (node.type === 1 /* Verse */ && node.scriptureRef.book === bookName);
+                })).sort(function (nodeA, nodeB) {
+                    return ScriptureReference.compare(nodeA.scriptureRef, nodeB.scriptureRef);
+                });
+            };
+
+            ScriptureGraph.prototype.renderBook = function (bookName) {
+                if (typeof bookName === "undefined") { bookName = 'ephesians'; }
+                return _.reduce(this.getBook(), function (total, node) {
+                    return total + node.renderContent();
+                }, '');
+            };
             return ScriptureGraph;
         })(graphs.Graph);
         graph.ScriptureGraph = ScriptureGraph;
@@ -598,8 +670,20 @@ var concordance;
                 return 'word:' + originalContent.trim().toLowerCase();
             };
 
+            WordNode.prototype.renderContent = function () {
+                return this.makeAnchor(this.content);
+            };
+
             WordNode.prototype.setType = function () {
                 this.type = 0 /* Word */;
+            };
+
+            WordNode.prototype.renderReference = function () {
+                return this.makeAnchor(this.renderName());
+            };
+
+            WordNode.prototype.renderName = function () {
+                return 'Word: ' + this.content[0].toUpperCase() + this.content.substr(1).toLowerCase();
             };
             return WordNode;
         })(graph.Node);
@@ -645,9 +729,27 @@ var concordance;
                 return 'verse:' + this.scriptureRef.book + this.scriptureRef.chapter + ':' + this.scriptureRef.verse;
             };
 
+            VerseNode.prototype.renderContent = function () {
+                var content = this.content + '';
+                var output = content.replace(VerseNode.wordMatchRegex, function (match) {
+                    var wn = new graph.WordNode(match);
+                    return wn.renderContent();
+                });
+                return this.renderReference() + output;
+            };
+
+            VerseNode.prototype.renderReference = function () {
+                return this.makeAnchor(this.scriptureRef.chapter + ':' + this.scriptureRef.verse);
+            };
+
+            VerseNode.prototype.renderName = function () {
+                return 'Ephesians ' + this.scriptureRef.chapter + ' Verse ' + this.scriptureRef.verse;
+            };
+
             VerseNode.prototype.setType = function () {
                 this.type = 1 /* Verse */;
             };
+            VerseNode.wordMatchRegex = /([a-zA-Z\’]+)/ig;
             return VerseNode;
         })(graph.Node);
         graph.VerseNode = VerseNode;
@@ -686,7 +788,7 @@ var concordance;
                 return _.map(verses, function (verse) {
                     var chapterAndVerse = verse[1].split(':');
                     return new VerseNode(verse[2], {
-                        book: '',
+                        book: 'ephesians',
                         chapter: parseInt(chapterAndVerse[0], 10),
                         verse: parseInt(chapterAndVerse[1], 10)
                     });
@@ -702,40 +804,6 @@ var concordance;
 var demo;
 (function (demo) {
     (function (ts) {
-        var PersonNode = (function () {
-            function PersonNode(person) {
-                this.person = {
-                    name: person.name,
-                    age: person.age,
-                    friends: person.friends,
-                    id: Math.max(PersonNode.highestPersonId, (person.id) ? person.id : 0)
-                };
-
-                PersonNode.highestPersonId = Math.max(PersonNode.highestPersonId, this.person.id + 1);
-            }
-            PersonNode.prototype._getUId = function () {
-                return this.person.id.toString();
-            };
-
-            PersonNode.prototype._getData = function () {
-                return this.person;
-            };
-
-            PersonNode.prototype._getEdges = function () {
-                return _.map(this.person.friends, function (friend) {
-                    return friend.toString();
-                });
-            };
-            PersonNode.highestPersonId = -Infinity;
-            return PersonNode;
-        })();
-        ts.PersonNode = PersonNode;
-    })(demo.ts || (demo.ts = {}));
-    var ts = demo.ts;
-})(demo || (demo = {}));
-var demo;
-(function (demo) {
-    (function (ts) {
         var ngModule = angular.module('demo.ts.factories', []);
 
         var GraphFactory = (function () {
@@ -746,15 +814,6 @@ var demo;
         })();
         ts.GraphFactory = GraphFactory;
         ngModule.factory('Graph', GraphFactory);
-
-        var PersonNodeFactory = (function () {
-            function PersonNodeFactory() {
-                return demo.ts.PersonNode;
-            }
-            return PersonNodeFactory;
-        })();
-        ts.PersonNodeFactory = PersonNodeFactory;
-        ngModule.factory('PersonNode', PersonNodeFactory);
 
         var ConnectedComponentComputerFactory = (function () {
             function ConnectedComponentComputerFactory() {
@@ -791,6 +850,36 @@ var demo;
         ngModule.value('bibleText', {
             ephesians: concordance.graphData.ephesians
         });
+    })(demo.ts || (demo.ts = {}));
+    var ts = demo.ts;
+})(demo || (demo = {}));
+var demo;
+(function (demo) {
+    (function (ts) {
+        var ngModule = angular.module('demo.ts');
+
+        var GraphSrv = (function () {
+            function GraphSrv(bibleText, ScriptureGraph, VerseNodeGraphBuilder, WordNodeGraphBuilder) {
+                var graphBuilders;
+
+                graphBuilders = [
+                    new VerseNodeGraphBuilder(),
+                    new WordNodeGraphBuilder()
+                ];
+
+                this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
+                this.nodes = [];
+            }
+            GraphSrv.$inject = [
+                'bibleText',
+                'ScriptureGraph',
+                'VerseNodeGraphBuilder',
+                'WordNodeGraphBuilder'];
+            return GraphSrv;
+        })();
+        ts.GraphSrv = GraphSrv;
+
+        ngModule.service('GraphSrv', GraphSrv);
     })(demo.ts || (demo.ts = {}));
     var ts = demo.ts;
 })(demo || (demo = {}));

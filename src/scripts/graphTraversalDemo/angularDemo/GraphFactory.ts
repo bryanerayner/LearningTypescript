@@ -2,7 +2,6 @@
  * Created by bryanerayner on 14-11-01.
  */
 ///<reference path="_module.ts" />
-///<reference path="Person.ts" />
 
 module demo.ts
 {
@@ -16,15 +15,6 @@ module demo.ts
         }
     }
     ngModule.factory('Graph', GraphFactory);
-
-
-    export class PersonNodeFactory
-    {
-        constructor(){
-            return  <typeof demo.ts.PersonNode>demo.ts.PersonNode;
-        }
-    }
-    ngModule.factory('PersonNode', PersonNodeFactory);
 
 
     export class ConnectedComponentComputerFactory

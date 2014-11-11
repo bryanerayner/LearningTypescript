@@ -16,6 +16,27 @@ module concordance.graph
         verse:number;
     }
 
+    export class ScriptureReference
+    {
+        /**
+         * Compare two scripture references in ascending order, to be used in
+         * Array.prototype.sort
+         * @param refA The first reference
+         * @param refB The second reference
+         * @returns {number}
+         */
+        public static compare(refA:ScriptureReference, refB:ScriptureReference)
+        {
+            var chapterComparison = refA.chapter - refB.chapter;
+            if (chapterComparison === 0){
+                return refA.verse - refB.verse;
+            }else
+            {
+                return chapterComparison;
+            }
+        }
+    }
+
     export class ScriptureGraph extends graphs.Graph<Node>
     {
         constructor(passage:string, graphBuilders:GraphBuilder[]){
@@ -29,6 +50,21 @@ module concordance.graph
                 });
         }
 
+        getBook(bookName:string='ephesians'):VerseNode[]{
+            return (this.where((node:VerseNode)=>(
+            node.type===NodeContentType.Verse && node.scriptureRef.book===bookName
+            ))).sort((nodeA:VerseNode, nodeB:VerseNode)=>{
+                    return ScriptureReference.compare(
+                        nodeA.scriptureRef,
+                        nodeB.scriptureRef
+                    );
+                });
+        }
 
+        renderBook(bookName:string='ephesians'):string {
+            return _.reduce(this.getBook(), (total, node)=>{
+                return total + node.renderContent();
+            }, '');
+        }
     }
 }

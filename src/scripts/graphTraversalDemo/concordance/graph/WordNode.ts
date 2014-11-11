@@ -14,8 +14,20 @@ module concordance.graph {
             return 'word:'+originalContent.trim().toLowerCase();
         }
 
+        public renderContent() {
+            return this.makeAnchor(this.content);
+        }
+
         public setType(){
             this.type = NodeContentType.Word;
+        }
+
+        public renderReference(){
+            return this.makeAnchor(this.renderName());
+        }
+
+        public renderName(){
+            return 'Word: ' + this.content[0].toUpperCase() + this.content.substr(1).toLowerCase();
         }
     }
 
@@ -51,6 +63,7 @@ module concordance.graph {
                 return new WordNode(word);
             });
         }
+
 
     }
 

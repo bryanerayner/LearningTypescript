@@ -6,243 +6,127 @@
 
 module demo.ts
 {
-    var ngModule = angular.module('demo.ts', ['demo.ts.factories']);
+    var ngModule = angular.module('demo.ts', [
+        'demo.ts.factories',
+        'ui.router',
+        'ui.bootstrap',
+        'ngSanitize'
+    ]);
 
+    ngModule.config(['$stateProvider', ($stateProvider:ng.ui.IStateProvider)=>{
 
-    interface DemoDataSeed
-    {
-        people:Person[];
-    }
+        $stateProvider.state({
+            name:'concordance',
+            url:'/concordance',
+            controller:'DemoCtrl as demoCtrl',
+            templateUrl:'demoTpl.html'
+        });
 
-    ngModule.value('demoDataSeed', <DemoDataSeed>{
-        people:[
+        $stateProvider.state({
+            name:'concordance.inspectNode',
+            url:'/node/{nodeRef}',
+            controller:'NodeCtrl as nodeCtrl',
+            templateUrl:'nodeTpl.html',
+            resolve:
             {
-                id:1,
-                name:'Tommy',
-                age:23,
-                friends:[3]
-            },{
-                id:2,
-                name:'Betty',
-                age:54,
-                friends:[5,6]
-            },{
-                id:3,
-                name:'Frank',
-                age:15,
-                friends:[1,4]
-            },{
-                id:4,
-                name:'Jennifer',
-                age:12,
-                friends:[1,3]
-            },{
-                id:5,
-                name:'Lafawnduh',
-                age:32,
-                friends:[6]
-            },{
-                id:6,
-                name:'Kip',
-                age:34,
-                friends:[5,7,8]
-            },{
-                id:7,
-                name:'Napoleon',
-                age:18,
-                friends:[6,8]
-            },{
-                id:8,
-                name:'Uncle Rico',
-                age:42,
-                friends:[7,6]
-            },{
-                id:9,
-                name:'Starla',
-                age:18,
-                friends:[7]
-            },{
-                id:10,
-                name:'Tina',
-                age:6,
-                friends:[7]
+                node:['GraphSrv','$stateParams',
+                    (GraphSrv:demo.ts.GraphSrv, $stateParams)=>{
+                    return GraphSrv.graph.getNode($stateParams.nodeRef);
+                }]
             }
-        ]
-    });
-    interface FriendData
+        });
+    }]);
+
+    ngModule.run(['$state', ($state:ng.ui.IStateService)=>{
+        $state.go('concordance');
+    }]);
+
+    ngModule.controller('DemoCtrl', ['$scope', 'GraphSrv', '$sce', function(
+        $scope:ng.IScope,
+        GraphSrv:demo.ts.GraphSrv,
+        $sce:ng.ISCEService)
     {
-        person:Person;
-        friendGroupId:number;
-    }
+        this.bookContent = '';
+        this.nodes = GraphSrv.graph.getAllNodes();
 
-    ngModule.controller('DemoCtrl',
-        [
-            '$scope',
-            'bibleText',
-            'ScriptureGraph',
-            'VerseNodeGraphBuilder',
-            'WordNodeGraphBuilder',
-            function ($scope:ng.IScope,
-                      bibleText:{ephesians:string;},
-                      ScriptureGraph:typeof concordance.graph.ScriptureGraph,
-                      VerseNodeGraphBuilder:typeof concordance.graph.VerseNodeGraphBuilder,
-                      WordNodeGraphBuilder:typeof concordance.graph.WordNodeGraphBuilder) {
+        $scope.$watch(()=>{
+            return GraphSrv.graph.nodesCount;
+        }, ()=>{
+            this.nodes = GraphSrv.graph.getAllNodes();
+            this.bookContent = $sce.trustAsHtml(GraphSrv.graph.renderBook());
+        });
 
-                var graphBuilders:concordance.graph.GraphBuilder[];
+        _.defer(()=>{
+            $scope.$digest();
+        }, 10);
+    }]);
 
-                graphBuilders = [
-                    new VerseNodeGraphBuilder(),
-                    new WordNodeGraphBuilder()
-                ];
+    ngModule.controller('NodeCtrl', ['$scope', 'node', 'GraphSrv',
+        function(
+            $scope:ng.IScope,
+            node:concordance.graph.Node,
+            GraphSrv:demo.ts.GraphSrv) {
 
-                this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
-                this.nodes = [];
+            this.nodeName = node.renderName();
+            this.nodeReference = node.renderReference();
+            this.nodeContent = node.renderContent();
 
-                $scope.$watch(()=>{
-                    return this.graph.nodesCount;
-                }, ()=>{
-                    this.nodes = this.graph.getAllNodes();
+            var getNodes = (depth:number)=> {
+                depth--;
+
+                this.adjacentNodes = GraphSrv.graph.getAdjacentNodes(node);
+
+                for (var i = 0; i< depth; i ++){
+                    var newAdjacentNodes = _(this.adjacentNodes).chain().map((node)=>{
+                       return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
+                    }).flatten().valueOf();
+                    this.adjacentNodes = newAdjacentNodes;
+                }
+                this.adjacentNodes = _.uniq(this.adjacentNodes, (node)=>{
+                   return node._getUId();
                 });
 
-                setInterval(()=>{
-                    $scope.$digest();
-                }, 100);
+                this.adjacentWords = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=> {
+                    return node.type === concordance.graph.NodeContentType.Word;
+                });
+                this.adjacentVerses = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=> {
+                    return node.type === concordance.graph.NodeContentType.Verse;
+                });
+                this.adjacentSentences = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=> {
+                    return node.type === concordance.graph.NodeContentType.Sentence;
+                });
 
-            }]);
+                this.accordionGroups = [{
+                    heading: 'Adjacent Words',
+                    adjacentNodes: this.adjacentWords,
+                    isOpen:!!this.adjacentWords.length
+                }, {
+                    heading: 'Adjacent Verses',
+                    adjacentNodes: this.adjacentVerses,
+                    isOpen:!!this.adjacentVerses.length
+                }, {
+                    heading: 'Adjacent Sentences',
+                    adjacentNodes: this.adjacentSentences,
+                    isOpen:!!this.adjacentSentences.length
+                }, {
+                    heading: 'All Nodes',
+                    adjacentNodes: this.adjacentNodes,
+                    isOpen:!!this.adjacentNodes.length
+                }];
 
+                this.accordionGroups = _.filter(this.accordionGroups, (aGroup)=>{
+                    return aGroup.isOpen;
+                });
+            };
 
-    //
-    //function(){
-    //            var personNodes:PersonNode[] = [];
-    //
-    //            _.each(demoDataSeed.people, (person)=>{
-    //                personNodes.push(new PersonNode(person));
-    //            });
-    //
-    //            var connections:graphs.INodeConnection[] = [];
-    //
-    //            _.each(demoDataSeed.people, (person:Person)=>{
-    //                _.each(person.friends, (friend)=>
-    //                {
-    //                    connections.push({
-    //                        firstId:friend.toString(),
-    //                        secondId:person.id.toString()
-    //                    });
-    //                });
-    //            });
-    //            var friendsGraph:graphs.Graph<Person>;
-    //            friendsGraph = new Graph(personNodes, connections);
-    //
-    //            var ccPeople:graphs.ConnectedComponentComputer<Person>;
-    //            ccPeople = new ConnectedComponentComputer(friendsGraph);
-    //
-    //            ccPeople.getConnectedComponents(friendsGraph);
-    //
-    //
-    //
-    //            this.ccPeople = ccPeople;
-    //            this.friendsGraph = friendsGraph;
-    //
-    //            this.numberOfFriendGroups = ccPeople.getCount();
-    //
-    //
-    //            var friendsData :FriendData[] = [];
-    //            this.friendsData = friendsData;
-    //            this.computeFriendData = ()=>{
-    //                friendsData = [];
-    //
-    //                ccPeople.getConnectedComponents(friendsGraph);
-    //
-    //                var friendsNodes:graphs.INode<Person>[] = friendsGraph.getAllNodes();
-    //
-    //                _.each(friendsNodes, (friendNode:graphs.INode<Person>)=>{
-    //                    friendsData.push(<FriendData>{
-    //                        person:friendNode._getData(),
-    //                        friendGroupId:ccPeople.getId(friendNode)
-    //                    });
-    //                });
-    //
-    //                this.friendsData = friendsData;
-    //            };
-    //
-    //            // Set up a watch for the friend data
-    //            $scope.$watchCollection(()=>{
-    //                return _.map(friendsGraph.getAllNodes(), (node:graphs.INode<Person>)=>{
-    //                  return node._getData();
-    //                });
-    //            }, (allPeople:Person[])=>{
-    //               this.computeFriendData();
-    //            });
-    //
-    //
-    //            this.getFriendByName = (name:string)=>{
-    //                name = name.trim().toLowerCase();
-    //                if (!name){
-    //                    return null;
-    //                }
-    //                return friendsGraph.where((person)=>{
-    //                    return person.name.toLowerCase().indexOf(name) > -1;
-    //                })[0];
-    //            }
-    //
-    //            this.friendsConnectedThrough = [];
-    //
-    //            this.friendsAreConnected = (name1:string, name2:string)=>{
-    //                this.friendsConnectedThrough = [];
-    //
-    //                var firstFriend = this.getFriendByName(name1);
-    //                var secondFriend = this.getFriendByName(name2);
-    //                var areConnected:boolean = false;
-    //                if (firstFriend && secondFriend)
-    //                {
-    //                    areConnected = ccPeople.areConnected(firstFriend,secondFriend);
-    //                }else{
-    //                    areConnected = false;
-    //                }
-    //                if (areConnected)
-    //                {
-    //                    // Make a new Breadth First Search to get the shortest path
-    //                    var bfs:graphs.BreadthFirstSearch<Person> = new BreadthFirstSearch(friendsGraph);
-    //                    bfs.search(friendsGraph, firstFriend);
-    //                    var pathIds:string[] = bfs.pathTo(secondFriend);
-    //
-    //                    _.each(pathIds, (nodeId)=>{
-    //                        this.friendsConnectedThrough.unshift(friendsGraph.getNodeData(nodeId).name);
-    //                    });
-    //                }
-    //                return areConnected;
-    //            }
-    //
-    //            this.name1 = '';
-    //            this.name2 = '';
-    //
-    //            this.addPerson = (name:string, age:string, friendNames:string = '')=>{
-    //
-    //                if (this.getFriendByName(name))
-    //                {
-    //                    return;
-    //                }
-    //
-    //                var friendsNames:string[] = friendNames.split(',');
-    //                var friendNodes:graphs.INode<Person>[] = [];
-    //                _.each(friendsNames, (iName:string)=>{
-    //                    var existingNode = this.getFriendByName(iName);
-    //                    if (existingNode){
-    //                        friendNodes.push(existingNode);
-    //                    }
-    //                });
-    //
-    //                var newNode = new PersonNode({
-    //                    name:name,
-    //                    age:parseInt(age),
-    //                    friends:_.map(friendNodes, (node:graphs.INode<Person>)=>{
-    //                      return parseInt(node._getUId());
-    //                    })
-    //                });
-    //
-    //                friendsGraph.addNode(newNode, newNode.person.friends);
-    //            }
-    //
-    //
-    //}]);
+            this.nodeDepth = 1;
+
+            $scope.$watch(()=>{
+                return this.nodeDepth;
+            }, (nodeDepth)=>{
+                getNodes(nodeDepth);
+            });
+
+    }]);
+
 }
