@@ -2,23 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0ea438cc-7d04-4ffa-ae79-1342e5931148" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/GraphSrv.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/ScriptureParser.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/typings/angular-ui/angular-ui-router.d.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/lib/angular-ui-router.min.js" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/Person.ts" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/GraphFactory.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/GraphFactory.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/Node.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/Node.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/ScriptureGraph.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/ScriptureGraph.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/VerseNode.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/VerseNode.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/WordNode.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/concordance/graph/WordNode.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_index.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_index.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_module.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_module.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/demo.html" afterPath="$PROJECT_DIR$/src/demo.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/demo.js.map" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/demo.js.map" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/demo.js" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/demo.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/types.d.ts" afterPath="$PROJECT_DIR$/src/scripts/graphTraversalDemo/types.d.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LearningTypescript.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -107,8 +94,8 @@
           <file leaf-file-name="demo.html" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/demo.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.75757575" vertical-offset="495" max-vertical-offset="1650">
-                  <caret line="73" column="42" selection-start-line="73" selection-start-column="42" selection-end-line="73" selection-end-column="42" />
+                <state vertical-scroll-proportion="0.71590906" vertical-offset="693" max-vertical-offset="1710">
+                  <caret line="84" column="66" selection-start-line="84" selection-start-column="66" selection-end-line="84" selection-end-column="66" />
                   <folding />
                 </state>
               </provider>
@@ -175,8 +162,8 @@
           <file leaf-file-name="_module.ts" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_module.ts">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.9264706" vertical-offset="1014" max-vertical-offset="2055">
-                  <caret line="118" column="19" selection-start-line="118" selection-start-column="19" selection-end-line="118" selection-end-column="19" />
+                <state vertical-scroll-proportion="0.54044116" vertical-offset="1269" max-vertical-offset="2145">
+                  <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
                   <folding>
                     <element signature="n#!!doc" expanded="true" />
                   </folding>
@@ -1072,16 +1059,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/demo.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.75757575" vertical-offset="495" max-vertical-offset="1650">
-          <caret line="73" column="42" selection-start-line="73" selection-start-column="42" selection-end-line="73" selection-end-column="42" />
+        <state vertical-scroll-proportion="0.71590906" vertical-offset="693" max-vertical-offset="1710">
+          <caret line="84" column="66" selection-start-line="84" selection-start-column="66" selection-end-line="84" selection-end-column="66" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/scripts/graphTraversalDemo/angularDemo/_module.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9264706" vertical-offset="1014" max-vertical-offset="2055">
-          <caret line="118" column="19" selection-start-line="118" selection-start-column="19" selection-end-line="118" selection-end-column="19" />
+        <state vertical-scroll-proportion="0.54044116" vertical-offset="1269" max-vertical-offset="2145">
+          <caret line="114" column="38" selection-start-line="114" selection-start-column="38" selection-end-line="114" selection-end-column="38" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>

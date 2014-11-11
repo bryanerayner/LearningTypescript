@@ -375,6 +375,7 @@ var demo;
                 this.nodeContent = node.renderContent();
 
                 var getNodes = function (depth) {
+                    _this.nodeDepth = depth;
                     depth--;
 
                     _this.adjacentNodes = GraphSrv.graph.getAdjacentNodes(node);
@@ -382,12 +383,11 @@ var demo;
                     for (var i = 0; i < depth; i++) {
                         var newAdjacentNodes = _(_this.adjacentNodes).chain().map(function (node) {
                             return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
-                        }).flatten().valueOf();
+                        }).flatten().uniq(function (node) {
+                            return node._getUId();
+                        }).valueOf();
                         _this.adjacentNodes = newAdjacentNodes;
                     }
-                    _this.adjacentNodes = _.uniq(_this.adjacentNodes, function (node) {
-                        return node._getUId();
-                    });
 
                     _this.adjacentWords = _.filter(_this.adjacentNodes, function (node) {
                         return node.type === 0 /* Word */;
@@ -402,18 +402,22 @@ var demo;
                     _this.accordionGroups = [
                         {
                             heading: 'Adjacent Words',
+                            renderContent: false,
                             adjacentNodes: _this.adjacentWords,
                             isOpen: !!_this.adjacentWords.length
                         }, {
                             heading: 'Adjacent Verses',
+                            renderContent: true,
                             adjacentNodes: _this.adjacentVerses,
                             isOpen: !!_this.adjacentVerses.length
                         }, {
                             heading: 'Adjacent Sentences',
+                            renderContent: true,
                             adjacentNodes: _this.adjacentSentences,
                             isOpen: !!_this.adjacentSentences.length
                         }, {
                             heading: 'All Nodes',
+                            renderContent: true,
                             adjacentNodes: _this.adjacentNodes,
                             isOpen: !!_this.adjacentNodes.length
                         }];
@@ -428,6 +432,7 @@ var demo;
                 $scope.$watch(function () {
                     return _this.nodeDepth;
                 }, function (nodeDepth) {
+                    nodeDepth = Math.max(1, nodeDepth);
                     getNodes(nodeDepth);
                 });
             }]);

@@ -47,24 +47,24 @@
         </div>
     </div>
     <div class="row">
+        <div class="col-xs-8">
+            <h3>Related at degree {{nodeCtrl.nodeDepth}}:</h3>
+        </div>
         <div class="col-xs-4">
-        <h3>Related:</h3>
+            <h3>{{nodeCtrl.adjacentNodes.length}} nodes</h3>
         </div>
-        <div class="col-xs-3">
-            <h4>Depth: {{nodeCtrl.nodeDepth}}</h4>
-        </div>
-        <div class="col-xs-5">
-            <button type="button"
+    </div>
+    <div class="row">
+        <button type="button"
                     class="pull-left btn btn-default"
                     ng-click = "nodeCtrl.nodeDepth = nodeCtrl.nodeDepth - 1">
-                Decrease
-            </button>
-            <button type="button"
-                    class="pull-right btn btn-primary"
+            Decrease Degree
+        </button>
+        <button type="button"
+                    class="pull-left btn btn-primary"
                     ng-click = "nodeCtrl.nodeDepth = nodeCtrl.nodeDepth + 1">
-                Increase
-            </button>
-        </div>
+            Increase Degree
+        </button>
     </div>
     <div class="row">
         <accordion close-others ="false">
@@ -81,7 +81,11 @@
                         <tr ng-repeat="node in aGroup.adjacentNodes track by $index">
                             <td ng-bind-html="::node.renderReference()">
                             </td>
-                            <td ng-bind-html="::node.getContent()">
+                            <td ng-if="aGroup.renderContent"
+                                ng-bind-html="::node.renderContent()">
+                            </td>
+                            <td ng-if="!aGroup.renderContent"
+                                ng-bind-html="::node.getContent()">
                             </td>
                         </tr>
                     </tbody>

@@ -72,6 +72,7 @@ module demo.ts
             this.nodeContent = node.renderContent();
 
             var getNodes = (depth:number)=> {
+                this.nodeDepth = depth;
                 depth--;
 
                 this.adjacentNodes = GraphSrv.graph.getAdjacentNodes(node);
@@ -79,12 +80,10 @@ module demo.ts
                 for (var i = 0; i< depth; i ++){
                     var newAdjacentNodes = _(this.adjacentNodes).chain().map((node)=>{
                        return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
-                    }).flatten().valueOf();
+                    }).flatten().uniq((node)=>{ return node._getUId();
+                    }).valueOf();
                     this.adjacentNodes = newAdjacentNodes;
                 }
-                this.adjacentNodes = _.uniq(this.adjacentNodes, (node)=>{
-                   return node._getUId();
-                });
 
                 this.adjacentWords = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=> {
                     return node.type === concordance.graph.NodeContentType.Word;
@@ -98,18 +97,22 @@ module demo.ts
 
                 this.accordionGroups = [{
                     heading: 'Adjacent Words',
+                    renderContent:false,
                     adjacentNodes: this.adjacentWords,
                     isOpen:!!this.adjacentWords.length
                 }, {
                     heading: 'Adjacent Verses',
+                    renderContent:true,
                     adjacentNodes: this.adjacentVerses,
                     isOpen:!!this.adjacentVerses.length
                 }, {
                     heading: 'Adjacent Sentences',
+                    renderContent:true,
                     adjacentNodes: this.adjacentSentences,
                     isOpen:!!this.adjacentSentences.length
                 }, {
                     heading: 'All Nodes',
+                    renderContent:true,
                     adjacentNodes: this.adjacentNodes,
                     isOpen:!!this.adjacentNodes.length
                 }];
@@ -117,6 +120,8 @@ module demo.ts
                 this.accordionGroups = _.filter(this.accordionGroups, (aGroup)=>{
                     return aGroup.isOpen;
                 });
+
+
             };
 
             this.nodeDepth = 1;
@@ -124,6 +129,7 @@ module demo.ts
             $scope.$watch(()=>{
                 return this.nodeDepth;
             }, (nodeDepth)=>{
+                nodeDepth = Math.max(1, nodeDepth);
                 getNodes(nodeDepth);
             });
 
