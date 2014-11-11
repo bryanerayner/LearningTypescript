@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="css/reveal.min.css">
-		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+		<link rel="stylesheet" href="css/theme/moon.css" id="theme">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -46,6 +46,15 @@
 			{
 				text-align: left;
 			}
+
+			div.row .col-2
+			{
+				width: 50%;
+				padding: 0 .5em;
+				float: left;
+				box-sizing: border-box;
+			}
+
 		</style>
 
 		<!--[if lt IE 9]>
@@ -55,7 +64,7 @@
 
 	<body>
 
-		<div class="reveal">
+		<div class="reveal slide center">
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
@@ -70,19 +79,13 @@
 				<section>
 					<h2 id="why-not-just-javascript">Why not just Javascript?</h2>
 					<p>Javascript, for all it's benefits, provides a considerable challenge for many developers.</p>
-				</section>
-				<section>
-					<section>
-					<h2>What's so bad?</h2>
-					<p>While reasons vary between developers,<br/> many leave for common, related reasons:</p>
-						<ul class="padded-top">
-							<li>The bad parts</li>
-							<li>Foreign concepts (prototypes)</li>
-							<li>Perceived language limitations</li>
-							<li>Lack of strong IDE support</li>
-							<li>Preference for different syntax (Ruby)</li>
-						</ul>
-					</section>
+					<ul class="padded-top">
+						<li class="fragment">The bad parts</li>
+						<li class="fragment">Foreign concepts (prototypes)</li>
+						<li class="fragment">Perceived language limitations</li>
+						<li class="fragment">Lack of strong IDE support</li>
+						<li class="fragment">Preference for different syntax (Ruby)</li>
+					</ul>
 				</section>
 				<section>
 					<h2>Alternatives</h2>
@@ -94,61 +97,83 @@
 						<li>Dart</li>
 						<li>Typescript</li>
 					</ul>
-					<p class="padded-top">Today, we'll be focusing on Typescript.</p>
+					<p class="fragment padded-top">Today, we'll be focusing on Typescript.</p>
 				</section>
 
 				<section>
 					<section>
 					<h2>Why Typescript?</h2>
-					<p>Typescript is a language which embraces the good parts about Javascript.</p>
+					<p>Typescript is a language which compiles to well-written Javascript.</p>
+						</section>
+					<section>
+						<h3>Hello World (with classes)</h3>
+<pre><code class="typescript">
+// Typescript
+class Welcomer
+{
+  message:string = '';
+
+  setMessage(newMessage:string) {
+    this.message = newMessage;
+  }
+
+  sayMessage() {
+    console.log(this.message);
+  }
+}
+</code></pre>
+						</section>
+					<section>
+						<h3>Javascript output</h3>
+<pre><code class="javascript">
+//Javascript
+var Welcomer = (function () {
+  function Welcomer() {
+    this.message = '';
+  }
+
+  Welcomer.prototype.setMessage = function (newMessage) {
+    this.message = newMessage;
+  };
+
+  Welcomer.prototype.sayMessage = function () {
+    console.log(this.message);
+  };
+  return Welcomer;
+})();
+</code></pre>
+					</section>
+
 					</section>
 					<section>
 						<h3>Familiar syntax</h3>
 						<p>All Javascript is valid Typescript</p>
 <pre><code class="typescript">
-	// Valid Typescript:
-	var greeter = function(){
-		return 'Hello World!';
-	};
+// Valid Typescript:
+var hello = function(){
+  return "Hey y'all!";
+};
 
-	var object = {
-		normal:'property',
-		definitions:'you bet'
-	};
+var object = {
+  normal:'property',
+  definitions:'you bet'
+};
 
-	console.log(greeter());
+console.log(hello());
 
-</code></pre>
-					</section>
-					<section>
-						<h3>Clean Output</h3>
-						<p>Typescript outputs human-editable Javascript - on purpose.</p>
-<pre><code class="javascript">
-    // From the Simple Inheritance example
-var Snake = (function (_super) {
-    __extends(Snake, _super);
-    function Snake(name) {
-        _super.call(this, name);
-    }
-    Snake.prototype.move = function () {
-        alert("Slithering...");
-        _super.prototype.move.call(this, 5);
-    };
-    return Snake;
-})(Animal);
 </code></pre>
 					</section>
 					<section>
 						<h3>ES6 features - today</h3>
 						<p>Typescript compiles ES6 syntax to ES5, and ES3</p>
 <pre><code class="typescript">
-	// Fat arrow functions:
-	var boundLookup = (propName) => this[propName];
+  // Fat arrow functions:
+  var boundLookup = (propName) => this[propName];
 
-	// Splat operator
-	var splattedFunction = function(one, two, ...rest){
-		// rest is the rest of the arguments after two
-	}
+  // Splat operator
+  var splattedFunction = function(one, two, ...rest){
+      // rest is the rest of the arguments after two
+  }
 </code></pre>
 
 					</section>
@@ -170,9 +195,9 @@ var Snake = (function (_super) {
 					<h2>Why Types?</h2>
 					<p>Type systems help you help yourself</p>
 					<ul>
-						<li>Errors caught at compile time - not run time</li>
-						<li>IDE refactoring support</li>
-						<li>Increased team cohesion</li>
+						<li class="fragment">Errors caught at compile time - not run time</li>
+						<li class="fragment">IDE refactoring support</li>
+						<li class="fragment">Increased team cohesion</li>
 					</ul>
 				</section>
 				<section>
@@ -205,14 +230,11 @@ var Snake = (function (_super) {
 				</section>
 				<section>
 					<h2>Objections to Static Types</h2>
-					<p>Web developers often have objections to type systems:</p>
 					<ul class="spaced-items" style="list-style: none !important;">
-						<li>"Type systems add complicated syntax to my code"</li>
-						<li>"It takes longer for me to write code in C++, Java, etc..."</li>
-						<li>"Compilation is premature optimization, therefore, the root of all evil."</li>
-						<li>"I like to quack when I work. 'Duck Typing' please."</li>
+						<li class="fragment">"Type systems add complicated syntax to my code"</li>
+						<li class="fragment">"It takes longer for me to write code in C++, Java, etc..."</li>
+						<li class="fragment">"Compilation is premature optimization, therefore, the root of all evil."</li>
 					</ul>
-					<p class="padded-top" style="font-size: .8em;">(I'll let you guess which of these were made up - Some weren't!)</p>
 					</section>
 				<section>
 					<h2>Best of Both Worlds</h2>
@@ -221,75 +243,51 @@ var Snake = (function (_super) {
 						<li>Types are checked by using 'Duck Typing'</li>
 						<li>You still get compiler errors - if you want them</li>
 					</ul>
-				</section>
-				<section>
-					<h2>Types and Interfaces</h2>
-					<p>We use types all the time - A Javascript developer commonly recognizes five types:</p>
-<pre><code>Number
-	String
-	Boolean
-	Object
-	Function
-</code></pre>
-					</section>
-				<section>
-					<h2>Default types in Typescript</h2>
-					<p>Like Javascript, Typescript supports some basic types:</p>
-<pre><code>
-	number
-	boolean
-	string
-</code></pre>
-					<p>Plus, some new types:</p>
-<pre><code>
-	void
-	any
-</code></pre>
-					<p class="padded-top">What happened to Object and Function?</p>
+					<h2>Plus - IDE Support</h2>
 				</section>
 				<section>
 					<section>
-					<h2>Compilers</h2>
-					<p>In reality, Object and Function are much more complicated than they appear.</p>
+					<h2>Valid Javascript</h2>
 <pre><code class="javascript">
 // Perfectly valid (and insane) Javascript:
-	var object = {};
-	var summary = 'The fruit bowl has ';
+  var object = {};
+  var summary = 'The fruit bowl has ';
 
-	object.value = function () { return summary + 'apple';}
+  object.value = function () {
+    return summary + 'apple';
+  }
 
-	object['value'] = object.value() + "s and oranges.";
+  object['value'] = object.value() + "s and oranges.";
 
-	object.value = (function() {
-	      	return object.value + ' And bananas.';
-		})();
+  object.value = (function() {
+    return object.value + ' And bananas.';
+  })();
 
-	summary = function() {console.log(object.value);}
-	summary();
+  summary = (function() {console.log(object.value);})();
 // Outputs: 'The fruit bowl has apples and oranges. And bananas.
 </code></pre>
 					</section>
 				<section>
-					<h2>WAT</h2>
-					<p>How is a compiler to know which is which?</p>
-					<p class="padded-top">How can an IDE give code hinting in this situation?</p>
+					<h2>Compilers be like:</h2>
+					<img src="images/yusocomplicated.jpg" alt="Web Developers - Y U Make Things So Complicated?"/>
 				</section>
 				</section>
 					<section>
 					<h2 id="interfaces">Interfaces</h2>
-					<p>Interfaces tell Typescript what to expect when it sees your custom object.</p>
+					<p>Interfaces tell IDE's (and Typescript) what to expect</p>
 <pre><code class="typescript">
 // Duck interface
 interface Duck {
-	age: number;
-	name: string;
-	secretIdentity: string;
+  age: number;
+  name: string;
+  secretIdentity: string;
 
-	walk(distance:number): void;
-	fly(destination:string) : void;
-	quack(volume: number): void;
+  walk(distance:number): void;
+  fly(destination:string) : void;
+  quack(volume: number): void;
 }
 </code></pre>
+					<p>Sort of like free documentation!</p>
 						</section>
 				<section><section>
 					<h2 id="generic-types">Generic Types</h2>
@@ -305,32 +303,82 @@ interface Resource&lt;T&gt; {
 </code></pre>
 				</section>
 					<section>
+						<h2>Implementing Generics</h2>
 					<p>&lt;T&gt; represents a generic type. It gets defined as you use it.</p>
 <pre><code>
-	interface Chicken{
-		id: number;
-		name: string;
-		breed: string;
-		weight: number;
-	}
+  interface Chicken{
+    id: number;
+    name: string;
+    breed: string;
+    weight: number;
+  }
 
-	class ChickenResource implements Resource&lt;Chicken&gt;
-	{
-		route: string;
-		get(): Chicken;
-		post(value:Chicken): boolean;
-		put(values: any): boolean;
-		delete(value: Chicken): boolean;
-
-	}
+  class ChickenResource implements Resource&lt;Chicken&gt;
+  {
+    route: string;
+    get(): Chicken;
+    post(value:Chicken): boolean;
+    put(values: any): boolean;
+    delete(value: Chicken): boolean;
+  }
 </code></pre>
 					</section>
 				</section>
 				<section>
-					<h2>Code Demos:</h2>
-					<p><a href="http://www.typescriptlang.org/Playground">Typescript Playground</a></p>
+					<h1>Demo Time!</h1>
+					<p>Let's implement a Graph API in Typescript</p>
 				</section>
+				<section>
+					<section>
+						<h2>Graphs:</h2>
+						<p>Graph's are a data structure which model connections</p>
+						<ul>
+							<li class="fragment">Facebook</li>
+							<li class="fragment">Google Search Results</li>
+							<li class="fragment">Road Maps</li>
+							<li class="fragment">Concordances</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Interfaces:</h2>
+						<h4>Node (Data Point)</h4>
+<pre><code class="typescript">
+  interface INode&lt;T&gt;
+  {
+    // Returns a unique identifier
+    _getUId:()=>string;
 
+    // Returns the node data
+    _getData:()=> T;
+  }
+</code></pre>
+					</section>
+					<section>
+						<h2>Graph:</h2>
+<pre><code class="typescript">
+  interface IGraph&lt;T&gt;
+  {
+    _uid:string;
+    nodesCount:number;
+
+    addNode(newNode:INode&lt;T&gt;): void;
+
+    addEdge(v: INode&lt;T&gt;, w: INode&lt;T&gt;): void;
+
+    getAdjacentNodes(v: INode&lt;T&gt;): INode&lt;T&gt;[];
+    countVertices(): number;
+
+    getNode(id:string): INode&lt;T&gt;;
+
+    //... Plus more goodies...
+  }
+</code></pre>
+					</section>
+				</section>
+				<section>
+					<h2>Demo:</h2>
+					<p>Concordance of Ephesians</p>
+				</section>
 				<section>
 					<section>
 					<h2>Typescript and Teamwork</h2>
@@ -366,7 +414,8 @@ interface Resource&lt;T&gt; {
 				center: true,
 
 				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				//transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				transition:'slide',
 
 				// Parallax scrolling
 				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
