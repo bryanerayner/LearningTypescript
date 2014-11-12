@@ -7,7 +7,7 @@
 module concordance.graph {
 
 
-    export class WordNode extends Node
+    export class WordNode extends Node implements graphs.INode<Node>
     {
 
         public computeReference(originalContent:string) {
@@ -27,6 +27,9 @@ module concordance.graph {
         }
 
         public renderName(){
+            if (this.content === '') {
+                return '';
+            }
             return 'Word: ' + this.content[0].toUpperCase() + this.content.substr(1).toLowerCase();
         }
     }

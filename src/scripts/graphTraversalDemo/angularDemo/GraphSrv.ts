@@ -13,17 +13,20 @@ module demo.ts {
             'bibleText',
             'ScriptureGraph',
             'VerseNodeGraphBuilder',
+            'SentenceNodeGraphBuilder',
             'WordNodeGraphBuilder'];
         constructor(bibleText:{ephesians:string;},
                     ScriptureGraph:typeof concordance.graph.ScriptureGraph,
                     VerseNodeGraphBuilder:typeof concordance.graph.VerseNodeGraphBuilder,
+                    SentenceNodeGraphBuilder:typeof concordance.graph.SentenceNodeGraphBuilder,
                     WordNodeGraphBuilder:typeof concordance.graph.WordNodeGraphBuilder) {
 
             var graphBuilders:concordance.graph.GraphBuilder[];
 
             graphBuilders = [
                 new VerseNodeGraphBuilder(),
-                new WordNodeGraphBuilder()
+                new WordNodeGraphBuilder(),
+                new SentenceNodeGraphBuilder()
             ];
 
             this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);

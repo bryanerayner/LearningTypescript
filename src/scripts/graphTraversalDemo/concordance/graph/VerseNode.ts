@@ -10,11 +10,11 @@ module concordance.graph {
 
 
 
-    export class VerseNode extends Node
+    export class VerseNode extends Node implements graphs.INode<Node>
     {
-        public scriptureRef:ScriptureReference;
+        public scriptureRef:IScriptureReference;
 
-        constructor(originalContent:string, scriptureRef:ScriptureReference)
+        constructor(originalContent:string, scriptureRef:IScriptureReference)
         {
             this.scriptureRef = scriptureRef;
             super(originalContent);
@@ -114,5 +114,7 @@ module concordance.graph {
         }
 
     }
+
+
 
 }

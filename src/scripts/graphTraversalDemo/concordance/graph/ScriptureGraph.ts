@@ -9,7 +9,7 @@
 module concordance.graph
 {
 
-    export interface ScriptureReference
+    export interface IScriptureReference
     {
         book:string;
         chapter:number;
@@ -25,7 +25,7 @@ module concordance.graph
          * @param refB The second reference
          * @returns {number}
          */
-        public static compare(refA:ScriptureReference, refB:ScriptureReference)
+        public static compare(refA:IScriptureReference, refB:IScriptureReference)
         {
             var chapterComparison = refA.chapter - refB.chapter;
             if (chapterComparison === 0){
@@ -51,7 +51,7 @@ module concordance.graph
         }
 
         getBook(bookName:string='ephesians'):VerseNode[]{
-            return (this.where((node:VerseNode)=>(
+            return <VerseNode[]><any>(this.where((node:any)=>(
             node.type===NodeContentType.Verse && node.scriptureRef.book===bookName
             ))).sort((nodeA:VerseNode, nodeB:VerseNode)=>{
                     return ScriptureReference.compare(
@@ -62,7 +62,7 @@ module concordance.graph
         }
 
         renderBook(bookName:string='ephesians'):string {
-            return _.reduce(this.getBook(), (total, node)=>{
+            return <string><any>_.reduce(this.getBook(), (total, node)=>{
                 return total + node.renderContent();
             }, '');
         }

@@ -71,6 +71,8 @@ module demo.ts
             this.nodeReference = node.renderReference();
             this.nodeContent = node.renderContent();
 
+            this.adjacentNodes = <concordance.graph.Node[]>[];
+
             var getNodes = (depth:number)=> {
                 this.nodeDepth = depth;
                 depth--;
@@ -78,10 +80,19 @@ module demo.ts
                 this.adjacentNodes = GraphSrv.graph.getAdjacentNodes(node);
 
                 for (var i = 0; i< depth; i ++){
-                    var newAdjacentNodes = _(this.adjacentNodes).chain().map((node)=>{
-                       return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
-                    }).flatten().uniq((node)=>{ return node._getUId();
-                    }).valueOf();
+                    var newAdjacentNodes = _(this.adjacentNodes).
+                        chain().
+                        map((node:concordance.graph.Node)=>{
+                            return [node].concat(
+                                _.map(GraphSrv.graph.getAdjacentNodes(node),
+                                    (node:concordance.graph.Node) => {
+                                        return node._getData();
+                                }));
+                        }).
+                        flatten().
+                        uniq((node:concordance.graph.Node)=>{
+                            return node._getUId();
+                        }).valueOf();
                     this.adjacentNodes = newAdjacentNodes;
                 }
 

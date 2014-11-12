@@ -374,6 +374,8 @@ var demo;
                 this.nodeReference = node.renderReference();
                 this.nodeContent = node.renderContent();
 
+                this.adjacentNodes = [];
+
                 var getNodes = function (depth) {
                     _this.nodeDepth = depth;
                     depth--;
@@ -382,7 +384,9 @@ var demo;
 
                     for (var i = 0; i < depth; i++) {
                         var newAdjacentNodes = _(_this.adjacentNodes).chain().map(function (node) {
-                            return [node].concat(GraphSrv.graph.getAdjacentNodes(node));
+                            return [node].concat(_.map(GraphSrv.graph.getAdjacentNodes(node), function (node) {
+                                return node._getData();
+                            }));
                         }).flatten().uniq(function (node) {
                             return node._getUId();
                         }).valueOf();
@@ -688,6 +692,9 @@ var concordance;
             };
 
             WordNode.prototype.renderName = function () {
+                if (this.content === '') {
+                    return '';
+                }
                 return 'Word: ' + this.content[0].toUpperCase() + this.content.substr(1).toLowerCase();
             };
             return WordNode;
@@ -806,6 +813,107 @@ var concordance;
     })(concordance.graph || (concordance.graph = {}));
     var graph = concordance.graph;
 })(concordance || (concordance = {}));
+var concordance;
+(function (concordance) {
+    (function (graph) {
+        var SentenceNode = (function (_super) {
+            __extends(SentenceNode, _super);
+            function SentenceNode(originalContent, sentenceNumber, book) {
+                this.sentence = sentenceNumber;
+                this.scriptureRefs = SentenceNode.getScriptureRefs(originalContent, book);
+                _super.call(this, originalContent);
+            }
+            SentenceNode.prototype.computeReference = function (originalContent) {
+                return 'sentence:' + this.sentence;
+            };
+
+            SentenceNode.prototype.renderContent = function () {
+                var content = this.content + '';
+                var output = content.replace(SentenceNode.verseRefRegex, '').replace(SentenceNode.wordMatchRegex, function (match) {
+                    var wn = new graph.WordNode(match);
+                    return wn.renderContent();
+                });
+                return output;
+            };
+
+            SentenceNode.prototype.renderReference = function () {
+                return this.makeAnchor('Sentence #' + this.sentence);
+            };
+
+            SentenceNode.prototype.renderName = function () {
+                return 'Sentence ' + this.sentence;
+            };
+
+            SentenceNode.getScriptureRefs = function (originalContent, book) {
+                var verseReferences = originalContent.match(SentenceNode.verseRefRegex);
+                return _.map(verseReferences, function (verseReference) {
+                    var chapterAndVerse = verseReference.split(':');
+                    return {
+                        book: book,
+                        chapter: parseInt(chapterAndVerse[0], 10),
+                        verse: parseInt(chapterAndVerse[1], 10)
+                    };
+                });
+            };
+            SentenceNode.prototype.setType = function () {
+                this.type = 2 /* Sentence */;
+            };
+            SentenceNode.wordMatchRegex = /([a-zA-Z\’]+)/ig;
+            SentenceNode.verseRefRegex = /([\d]\:[\d]{1,3})/ig;
+            return SentenceNode;
+        })(graph.Node);
+        graph.SentenceNode = SentenceNode;
+
+        var SentenceNodeGraphBuilder = (function (_super) {
+            __extends(SentenceNodeGraphBuilder, _super);
+            function SentenceNodeGraphBuilder() {
+                _super.apply(this, arguments);
+                this.builderName = 'sentence';
+                this.requiredBuilders = ['verse', 'word'];
+            }
+            SentenceNodeGraphBuilder.prototype.addNodes = function (passage) {
+                var _this = this;
+                var wordBuilder = this.getSharedBuilder('word');
+                var verseBuilder = this.getSharedBuilder('verse');
+
+                if (wordBuilder && verseBuilder) {
+                    var sentenceNodes = this.getNodes(passage);
+
+                    _.each(sentenceNodes, function (sentenceNode) {
+                        var sentenceText = sentenceNode.getContent();
+                        var wordNodes = wordBuilder.getNodes(sentenceText);
+                        var verseNodes = _.map(sentenceNode.scriptureRefs, function (scriptureRef) {
+                            return new graph.VerseNode('', scriptureRef);
+                        });
+
+                        _this.graph.addNode(sentenceNode);
+                        _.each(wordNodes, function (wordNode) {
+                            _this.graph.addEdge(sentenceNode, wordNode);
+                        });
+                        _.each(verseNodes, function (verseNode) {
+                            _this.graph.addEdge(sentenceNode, verseNode);
+                        });
+                    });
+                }
+            };
+
+            SentenceNodeGraphBuilder.prototype.getNodes = function (subPassage) {
+                var sentences = [];
+                var sentence;
+                while ((sentence = SentenceNodeGraphBuilder.sentenceRegex.exec(subPassage)) !== null) {
+                    sentences.push(sentence);
+                }
+                return _.map(sentences, function (sentence, count) {
+                    return new SentenceNode(sentence[1], count, 'ephesians');
+                });
+            };
+            SentenceNodeGraphBuilder.sentenceRegex = /([\dA-Za-z\s\,\-\"\'\*\;\:\’\“\”]*\.)/g;
+            return SentenceNodeGraphBuilder;
+        })(graph.GraphBuilder);
+        graph.SentenceNodeGraphBuilder = SentenceNodeGraphBuilder;
+    })(concordance.graph || (concordance.graph = {}));
+    var graph = concordance.graph;
+})(concordance || (concordance = {}));
 var demo;
 (function (demo) {
     (function (ts) {
@@ -845,7 +953,8 @@ var demo;
             'VerseNode',
             'VerseNodeGraphBuilder',
             'WordNode',
-            'WordNodeGraphBuilder'
+            'WordNodeGraphBuilder',
+            'SentenceNodeGraphBuilder'
         ], function (className) {
             ngModule.factory(className, [function () {
                     return concordance.graph[className];
@@ -864,12 +973,13 @@ var demo;
         var ngModule = angular.module('demo.ts');
 
         var GraphSrv = (function () {
-            function GraphSrv(bibleText, ScriptureGraph, VerseNodeGraphBuilder, WordNodeGraphBuilder) {
+            function GraphSrv(bibleText, ScriptureGraph, VerseNodeGraphBuilder, SentenceNodeGraphBuilder, WordNodeGraphBuilder) {
                 var graphBuilders;
 
                 graphBuilders = [
                     new VerseNodeGraphBuilder(),
-                    new WordNodeGraphBuilder()
+                    new WordNodeGraphBuilder(),
+                    new SentenceNodeGraphBuilder()
                 ];
 
                 this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
@@ -879,6 +989,7 @@ var demo;
                 'bibleText',
                 'ScriptureGraph',
                 'VerseNodeGraphBuilder',
+                'SentenceNodeGraphBuilder',
                 'WordNodeGraphBuilder'];
             return GraphSrv;
         })();
