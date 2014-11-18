@@ -14,24 +14,25 @@ module demo.ts {
             'ScriptureGraph',
             'VerseNodeGraphBuilder',
             'SentenceNodeGraphBuilder',
-            'WordNodeGraphBuilder'];
+            'WordNodeGraphBuilder','PersonNodeGraphBuilder'];
         constructor(bibleText:{ephesians:string;},
                     ScriptureGraph:typeof concordance.graph.ScriptureGraph,
                     VerseNodeGraphBuilder:typeof concordance.graph.VerseNodeGraphBuilder,
                     SentenceNodeGraphBuilder:typeof concordance.graph.SentenceNodeGraphBuilder,
-                    WordNodeGraphBuilder:typeof concordance.graph.WordNodeGraphBuilder) {
+                    WordNodeGraphBuilder:typeof concordance.graph.WordNodeGraphBuilder,
+                    PersonNodeGraphBuilder:typeof concordance.graph.PersonNodeGraphBuilder) {
 
             var graphBuilders:concordance.graph.GraphBuilder[];
 
             graphBuilders = [
                 new VerseNodeGraphBuilder(),
                 new WordNodeGraphBuilder(),
-                new SentenceNodeGraphBuilder()
+                new SentenceNodeGraphBuilder(),
+                new PersonNodeGraphBuilder()
             ];
 
             this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
             this.nodes = [];
-
         }
     }
 

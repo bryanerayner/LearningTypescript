@@ -84,11 +84,11 @@ module graphs
             var uid = newNode._getUId();
             if (!this.nodes[uid]){
                 this.nodesCount++;
+                this.nodes[uid] = newNode;
+                _.each(biDirectionalEdges, (edge)=>{
+                    this.addEdge(newNode, this.getNode(edge.toString()));
+                });
             }
-            this.nodes[uid] = newNode;
-            _.each(biDirectionalEdges, (edge)=>{
-               this.addEdge(newNode, this.getNode(edge.toString()));
-            });
         }
 
         addEdge(v:INode<T>, w:INode<T>);

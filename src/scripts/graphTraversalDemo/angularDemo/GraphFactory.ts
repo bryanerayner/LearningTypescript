@@ -46,7 +46,8 @@ module demo.ts
         'VerseNodeGraphBuilder',
         'WordNode',
         'WordNodeGraphBuilder',
-        'SentenceNodeGraphBuilder'
+        'SentenceNodeGraphBuilder',
+        'PersonNodeGraphBuilder'
     ], (className)=>{
 
         ngModule.factory(className, [function(){

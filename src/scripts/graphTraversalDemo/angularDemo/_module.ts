@@ -105,6 +105,9 @@ module demo.ts
                 this.adjacentSentences = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=> {
                     return node.type === concordance.graph.NodeContentType.Sentence;
                 });
+                this.adjacentPeople = _.filter(this.adjacentNodes, (node:concordance.graph.Node)=>{
+                    return node.type === concordance.graph.NodeContentType.Person;
+                })
 
                 this.accordionGroups = [{
                     heading: 'Adjacent Words',
@@ -122,6 +125,11 @@ module demo.ts
                     adjacentNodes: this.adjacentSentences,
                     isOpen:!!this.adjacentSentences.length
                 }, {
+                    heading: 'Adjacent People',
+                    renderContent:true,
+                    adjacentNodes: this.adjacentPeople,
+                    isOpen:!!this.adjacentPeople.length
+                },{
                     heading: 'All Nodes',
                     renderContent:true,
                     adjacentNodes: this.adjacentNodes,

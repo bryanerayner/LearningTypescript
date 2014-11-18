@@ -10,6 +10,7 @@ module concordance.graph
         Word,
         Verse,
         Sentence,
+        Person,
         BaseType
     }
 

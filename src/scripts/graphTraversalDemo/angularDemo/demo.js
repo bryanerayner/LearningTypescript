@@ -51,11 +51,11 @@ var graphs;
             var uid = newNode._getUId();
             if (!this.nodes[uid]) {
                 this.nodesCount++;
+                this.nodes[uid] = newNode;
+                _.each(biDirectionalEdges, function (edge) {
+                    _this.addEdge(newNode, _this.getNode(edge.toString()));
+                });
             }
-            this.nodes[uid] = newNode;
-            _.each(biDirectionalEdges, function (edge) {
-                _this.addEdge(newNode, _this.getNode(edge.toString()));
-            });
         };
 
         Graph.prototype.addEdge = function (v, w) {
@@ -402,6 +402,9 @@ var demo;
                     _this.adjacentSentences = _.filter(_this.adjacentNodes, function (node) {
                         return node.type === 2 /* Sentence */;
                     });
+                    _this.adjacentPeople = _.filter(_this.adjacentNodes, function (node) {
+                        return node.type === 3 /* Person */;
+                    });
 
                     _this.accordionGroups = [
                         {
@@ -419,6 +422,11 @@ var demo;
                             renderContent: true,
                             adjacentNodes: _this.adjacentSentences,
                             isOpen: !!_this.adjacentSentences.length
+                        }, {
+                            heading: 'Adjacent People',
+                            renderContent: true,
+                            adjacentNodes: _this.adjacentPeople,
+                            isOpen: !!_this.adjacentPeople.length
                         }, {
                             heading: 'All Nodes',
                             renderContent: true,
@@ -450,7 +458,8 @@ var concordance;
             NodeContentType[NodeContentType["Word"] = 0] = "Word";
             NodeContentType[NodeContentType["Verse"] = 1] = "Verse";
             NodeContentType[NodeContentType["Sentence"] = 2] = "Sentence";
-            NodeContentType[NodeContentType["BaseType"] = 3] = "BaseType";
+            NodeContentType[NodeContentType["Person"] = 3] = "Person";
+            NodeContentType[NodeContentType["BaseType"] = 4] = "BaseType";
         })(graph.NodeContentType || (graph.NodeContentType = {}));
         var NodeContentType = graph.NodeContentType;
 
@@ -461,7 +470,7 @@ var concordance;
                 this.setType();
             }
             Node.prototype.setType = function () {
-                this.type = 3 /* BaseType */;
+                this.type = 4 /* BaseType */;
             };
 
             Node.prototype.setReference = function (originalContent) {
@@ -914,6 +923,85 @@ var concordance;
     })(concordance.graph || (concordance.graph = {}));
     var graph = concordance.graph;
 })(concordance || (concordance = {}));
+var concordance;
+(function (concordance) {
+    (function (graph) {
+        var PersonNode = (function (_super) {
+            __extends(PersonNode, _super);
+            function PersonNode() {
+                _super.apply(this, arguments);
+            }
+            PersonNode.prototype.computeReference = function (originalContent) {
+                return 'person:' + originalContent.trim().toLowerCase();
+            };
+
+            PersonNode.prototype.renderContent = function () {
+                return this.makeAnchor(this.content);
+            };
+
+            PersonNode.prototype.setType = function () {
+                this.type = 3 /* Person */;
+            };
+
+            PersonNode.prototype.renderReference = function () {
+                return this.makeAnchor(this.renderName());
+            };
+
+            PersonNode.prototype.renderName = function () {
+                if (this.content === '') {
+                    return '';
+                }
+                return 'Person: ' + this.content[0].toUpperCase() + this.content.substr(1).toLowerCase();
+            };
+            return PersonNode;
+        })(graph.Node);
+        graph.PersonNode = PersonNode;
+
+        var PersonNodeGraphBuilder = (function (_super) {
+            __extends(PersonNodeGraphBuilder, _super);
+            function PersonNodeGraphBuilder() {
+                _super.apply(this, arguments);
+                this.builderName = 'person';
+                this.requiredBuilders = ['word', 'verse', 'sentence'];
+            }
+            PersonNodeGraphBuilder.prototype.addNodes = function (passage) {
+                var _this = this;
+                var wordNodeBuilder = this.getSharedBuilder('word');
+                var verseNodeBuilder = this.getSharedBuilder('verse');
+                var sentenceNodeBuilder = this.getSharedBuilder('sentence');
+
+                if (wordNodeBuilder && verseNodeBuilder && sentenceNodeBuilder) {
+                    var allNodes = verseNodeBuilder.getNodes(passage).concat(sentenceNodeBuilder.getNodes(passage)).concat(wordNodeBuilder.getNodes(passage));
+
+                    _.each(allNodes, function (node) {
+                        var personNodes = _this.getNodes(node.getContent());
+                        if (personNodes.length) {
+                            _.each(personNodes, function (personNode) {
+                                _this.graph.addNode(personNode);
+                                _this.graph.addEdge(personNode, node);
+                            });
+                        }
+                    });
+                }
+            };
+
+            PersonNodeGraphBuilder.prototype.getNodes = function (subPassage) {
+                var nodes = [];
+                _.each(PersonNodeGraphBuilder.names, function (name) {
+                    var regex = new RegExp(name, 'gi');
+                    if (regex.test(subPassage)) {
+                        nodes.push(new PersonNode(name));
+                    }
+                });
+                return nodes;
+            };
+            PersonNodeGraphBuilder.names = ['paul', 'jesus', 'ephesians'];
+            return PersonNodeGraphBuilder;
+        })(graph.GraphBuilder);
+        graph.PersonNodeGraphBuilder = PersonNodeGraphBuilder;
+    })(concordance.graph || (concordance.graph = {}));
+    var graph = concordance.graph;
+})(concordance || (concordance = {}));
 var demo;
 (function (demo) {
     (function (ts) {
@@ -954,7 +1042,8 @@ var demo;
             'VerseNodeGraphBuilder',
             'WordNode',
             'WordNodeGraphBuilder',
-            'SentenceNodeGraphBuilder'
+            'SentenceNodeGraphBuilder',
+            'PersonNodeGraphBuilder'
         ], function (className) {
             ngModule.factory(className, [function () {
                     return concordance.graph[className];
@@ -973,13 +1062,14 @@ var demo;
         var ngModule = angular.module('demo.ts');
 
         var GraphSrv = (function () {
-            function GraphSrv(bibleText, ScriptureGraph, VerseNodeGraphBuilder, SentenceNodeGraphBuilder, WordNodeGraphBuilder) {
+            function GraphSrv(bibleText, ScriptureGraph, VerseNodeGraphBuilder, SentenceNodeGraphBuilder, WordNodeGraphBuilder, PersonNodeGraphBuilder) {
                 var graphBuilders;
 
                 graphBuilders = [
                     new VerseNodeGraphBuilder(),
                     new WordNodeGraphBuilder(),
-                    new SentenceNodeGraphBuilder()
+                    new SentenceNodeGraphBuilder(),
+                    new PersonNodeGraphBuilder()
                 ];
 
                 this.graph = new ScriptureGraph(bibleText.ephesians, graphBuilders);
@@ -990,7 +1080,7 @@ var demo;
                 'ScriptureGraph',
                 'VerseNodeGraphBuilder',
                 'SentenceNodeGraphBuilder',
-                'WordNodeGraphBuilder'];
+                'WordNodeGraphBuilder', 'PersonNodeGraphBuilder'];
             return GraphSrv;
         })();
         ts.GraphSrv = GraphSrv;
